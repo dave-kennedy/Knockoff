@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Knockoff Demo</title>
+</head>
+
+<body>
+    <h1>Knockoff Demo</h1>
+
+    <p>
+        <label for="name">Name</label>
+    </p>
+    <p>
+        <input class="bind" data-bind="name" id="name" type="text">
+    </p>
+    
+    <p>
+        <label for="abilities-strength">Strength</label>
+    </p>
+    <p>
+        <input class="bind" data-bind="abilities.strength" id="abilities-strength" type="text">
+    </p>
+</body>
+
+<script src="js/KO.js"></script>
+<script>
+    // ECMAScript 5 strict mode
+    'use strict';
+    
+    function Person(name, strength) {
+        this.name = new KO.Bindable(name);
+        this.abilities = {};
+        this.abilities.strength = new KO.Bindable(strength);
+    }
+
+    var model = new Person('Dave', 10);
+    
+    KO.bind(model);
+</script>

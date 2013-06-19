@@ -2,17 +2,9 @@ var KO = (function () {
     // ECMAScript 5 strict mode
     'use strict';
 
-    function raiseEvent(name, details) {
-        if (window.CustomEvent) {
-            window.dispatchEvent(new CustomEvent(name, {
-                details: details,
-                bubbles: true,
-                cancelable: true
-            }));
-        }
-    }
-
     function Bindable(value) {
+        this.boundElements = [];
+    
         this.__defineGetter__('value', function () {
             return value;
         });
@@ -20,46 +12,65 @@ var KO = (function () {
         this.__defineSetter__('value', function (val) {
             value = val;
 
-            this.raiseEvent();
+            window.dispatchEvent(new CustomEvent('bindableValueSet', {
+                detail: {
+                    bindable: this
+                }
+            }));
         });
     }
 
-    Bindable.prototype.raiseEvent = function () {
-        raiseEvent('bindableSetterCalled');
-    }
+    function bind(model) {
+        var elements = document.getElementsByClassName('bind'),
+            i,
+            bindTarget,
+            bindProps,
+            bindable;
+        
+        for (i = 0; i < elements.length; i++) {
+            bindTarget = elements[i].dataset.bind;
 
-    function bind($) {
-        if (!$) {
-            console.error('Missing crappy dependency on jQuery. Aborting...');
-            return false;
+            if (bindTarget === undefined) {
+                return;
+            }
+            
+            bindProps = bindTarget.split('.');
+            
+            bindable = [model].concat(bindProps).reduce(function (a, b) {
+                return a[b];
+            });
+
+            bindable.boundElements.push(elements[i]);
+            
+            elements[i].value = bindable.value;
         }
-
-        $('.bind').each(function () {
-            var self = $(this),
-                props = $(this).data('bind').split('.'),
-                bindable;
-
-            bindable = [model].concat(props).reduce(function (a, b) {
-                return a[b];
-            });
-
-            $(this).val(bindable.value);
-
-            window.addEventListener('bindableSetterCalled', function () {
-                self.val(bindable.value);
-            });
-        }).change(function () {
-            var props = $(this).data('bind').split('-'),
-                bindable;
-
-            bindable = [model].concat(props).reduce(function (a, b) {
-                return a[b];
-            });
-
-            bindable.value = $(this).val();
+        
+        window.addEventListener('bindableValueSet', function (event) {
+            var i;
+            
+            for (i = 0; i < event.detail.bindable.boundElements.length; i++) {
+                event.detail.bindable.boundElements[i].value = event.detail.bindable.value;
+            }
         });
-
-        return true;
+        
+        window.addEventListener('change', function (event) {
+            var bindTarget = event.target.dataset.bind,
+                bindProps,
+                bindable;
+            
+            if (bindTarget === undefined) {
+                return;
+            }
+            
+            bindProps = bindTarget.split('.');
+            
+            bindable = [model].concat(bindProps).reduce(function (a, b) {
+                return a[b];
+            });
+            
+            // TODO: Add support for data types other than string
+            bindable.value = event.target.value;
+        });
     }
 
     var Module = {};
