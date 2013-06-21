@@ -100,13 +100,26 @@ var KO = (function () {
 
     function addEventListeners(mappings) {
         window.addEventListener('change', function (event) {
-            var mapping = event.target.dataset.mapping;
+            var mapping = event.target.dataset.mapping,
+                newValue = event.target.value,
+                oldValue;
 
             if (mapping === undefined) {
                 return;
             }
 
-            mappings[mapping].pointer(event.target.value);
+            oldValue = mappings[mapping].pointer();
+
+            if (typeof oldValue === 'number') {
+                newValue = parseInt(newValue);
+
+                if (isNaN(newValue)) {
+                    event.target.value = oldValue;
+                    return;
+                }
+            }
+
+            mappings[mapping].pointer(newValue);
         });
 
         window.addEventListener('modelPropertySet', function (event) {
