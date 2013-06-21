@@ -22,7 +22,7 @@
     <p>
         <input class="bind" data-mapping="level" id="level" type="text">
     </p>
-    
+
     <h2>Wisdom</h2>
     <p>
         <label for="wisdom-score">Score</label>
@@ -57,8 +57,17 @@
 <script>
     // ECMAScript 5 strict mode
     'use strict';
-    
-    var model = {
+
+    function Person(params) {
+        params = params || {};
+
+        this.name = params.name;
+        this.level = params.level;
+        this.wisdom = params.wisdom;
+        this.skills = params.skills;
+    }
+
+    var model = new Person({
         name: 'Dave',
         level: 10,
         wisdom: {
@@ -71,7 +80,7 @@
                 night: 100
             }
         }
-    };
-    
+    });
+
     KO.bind(model);
 </script>
