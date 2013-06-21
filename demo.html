@@ -9,7 +9,7 @@
 <body>
     <h1>Knockoff Demo</h1>
 
-    <h2>General</h2>
+    <h2>Character Sheet for <span class="bind" data-mapping="name"></span></h2>
     <p>
         <label for="name">Name</label>
     </p>
@@ -21,6 +21,10 @@
     </p>
     <p>
         <input class="bind" data-mapping="level" id="level" type="text">
+    </p>
+    <p>
+        <input class="bind" data-mapping="undead" id="undead" type="checkbox" value="true">
+        <label for="undead">Undead</label>
     </p>
 
     <h2>Wisdom</h2>
@@ -63,6 +67,7 @@
 
         this.name = params.name;
         this.level = params.level;
+        this.undead = params.undead;
         this.wisdom = params.wisdom;
         this.skills = params.skills;
     }
@@ -70,6 +75,7 @@
     var model = new Person({
         name: 'Dave',
         level: 10,
+        undead: true,
         wisdom: {
             score: 5,
             modifier: -2

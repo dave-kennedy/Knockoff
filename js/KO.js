@@ -31,12 +31,14 @@ var KO = (function () {
     }
 
     function setElementValue(el, val) {
-        if (el.value === undefined) {
-            el.innerHTML = val;
-            return;
+        switch (el.type) {
+            case 'text':
+                el.value = val;
+            case 'checkbox':
+                el.checked = val;
+            case undefined:
+                el.innerHTML = val;
         }
-
-        el.value = val;
     }
 
     function addModelEvents(model, mapping) {
@@ -110,7 +112,9 @@ var KO = (function () {
 
             oldValue = mappings[mapping].pointer();
 
-            if (typeof oldValue === 'number') {
+            if (typeof oldValue === 'boolean') {
+                newValue = newValue === 'true';
+            } else if (typeof oldValue === 'number') {
                 newValue = parseInt(newValue);
 
                 if (isNaN(newValue)) {
