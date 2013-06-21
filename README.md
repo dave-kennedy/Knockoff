@@ -43,7 +43,9 @@ Knockoff plays nice with complex view models like this:
 
 Your markup in this case could be:
 
-    <h3>Skills</h3>
+    <h3>
+        <span class="bind" data-mapping="name"></span>'s Skills
+    </h3>
     <p>
         Programming (Day): <input class="bind" data-mapping="skills.programming.day" type="text">
     </p>
@@ -68,16 +70,6 @@ Of course, you can use constructors in your view model as well:
     
     KO.bind(model);
 
-This would work like you would expect:
-
-    <h1 class="bind" data-mapping="name"></h1>
-    <h2>The Barbarian</h2>
-    <p>
-        Strength: <input class="bind" data-mapping="strength" type="text">
-    </p>
-    <p>
-        Weapon: <input class="bind" data-mapping="weapon.type" type="text"><br>
-        Damage: <input class="bind" data-mapping="weapon.damage" type="text">
-    </p>
+This works just like you would expect.
 
 The thing that sucks about Knockoff is there is no way to define a property of your view model that is computed from another property. I might fix that at some point, or you can if you want to.
