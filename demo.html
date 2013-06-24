@@ -23,6 +23,12 @@
         <input class="bind" data-mapping="level" id="level" type="text">
     </p>
     <p>
+        <label for="strength">Strength</label>
+    </p>
+    <p>
+        <input class="bind" data-mapping="strength" id="strength" type="text">
+    </p>
+    <p>
         <input class="bind" data-mapping="undead" id="undead" type="checkbox" value="true">
         <label for="undead">Undead</label>
     </p>
@@ -57,7 +63,7 @@
     </p>
 </body>
 
-<script src="js/KO-1.0.0.js"></script>
+<script src="js/KO-1.0.1.js"></script>
 <script>
     // ECMAScript 5 strict mode
     'use strict';
@@ -67,6 +73,7 @@
 
         this.name = params.name;
         this.level = params.level;
+        this.strength = params.strength;
         this.undead = params.undead;
         this.wisdom = params.wisdom;
         this.skills = params.skills;
@@ -89,4 +96,8 @@
     });
 
     KO.bind(model);
+
+    KO.compute(function () {
+        model.strength = model.level / 2;
+    }, 'level');
 </script>
