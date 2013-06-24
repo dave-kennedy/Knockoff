@@ -1,4 +1,4 @@
-Knockoff is a JavaScript model binding library. The name is stolen from Knockout, a much better library that you should probably use instead (http://knockoutjs.com).
+Knockoff is a JavaScript model binding library. The name is stolen from [Knockout](http://knockoutjs.com), a much better library that you should probably use instead, at least until I get the kinks worked out.
 
 The thing that's cool about Knockoff is you can wire up your view model with one function call, and you don't have to clutter your view model with weird proprietary types:
 
@@ -18,7 +18,7 @@ Your markup would then look something like this:
         Level: <input class="bind" data-mapping="level" type="text">
     </p>
 
-You can have lots of elements that are bound to a single property of your view model. Just make sure you add the `bind` class to each of them, and specify the property to bind to in the data-mapping attribute:
+You can have lots of elements that are bound to a single property of your view model. Just make sure you add the `bind` class to each of them, and specify the property to bind to in the `data-mapping` attribute:
 
     <p>
         Enter your name: <input class="bind" data-mapping="name" type="text">
@@ -53,23 +53,7 @@ Your markup in this case could be:
         Programming (Night): <input class="bind" data-mapping="skills.programming.night" type="text">
     </p>
 
-Of course, you can use constructors in your view model as well:
+Of course, you can use constructors in your view model as well.
 
-    function Weapon(type, damage) {
-        this.type = type;
-        this.damage = damage;
-    }
-    
-    function Barbarian(name, strength, weapon) {
-        this.name = name;
-        this.strength = strength;
-        this.weapon = weapon;
-    }
-    
-    var model = new Barbarian('Dave', 20, new Weapon('Axe', 10));
-    
-    KO.bind(model);
 
-This works just like you would expect.
-
-The thing that sucks about Knockoff is there is no way to define a property of your view model that is computed from another property. I might fix that at some point, or you can if you want to.
+As of right now there is no way to define a property of your view model that is computed from another property. I might fix that at some point, or you can if you want to.
