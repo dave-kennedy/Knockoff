@@ -1,5 +1,5 @@
 /*!
- * Knockoff v1.0.1
+ * Knockoff v1.0.2
  * A JavaScript model binding library
  * http://github.com/davidkennedy85/Knockoff
  */
@@ -109,7 +109,7 @@ var KO = (function () {
     function addEventListeners(mappings) {
         window.addEventListener('change', function (event) {
             var mapping = event.target.dataset.mapping,
-                newValue = event.target.value,
+                newValue,
                 oldValue;
 
             if (mapping === undefined) {
@@ -119,14 +119,16 @@ var KO = (function () {
             oldValue = mappings[mapping].pointer();
 
             if (typeof oldValue === 'boolean') {
-                newValue = newValue === 'true';
+                newValue = event.target.checked;
             } else if (typeof oldValue === 'number') {
-                newValue = parseInt(newValue);
+                newValue = parseInt(event.target.value);
 
                 if (isNaN(newValue)) {
                     event.target.value = oldValue;
                     return;
                 }
+            } else {
+                newValue = event.target.value;
             }
 
             mappings[mapping].pointer(newValue);
@@ -164,10 +166,17 @@ var KO = (function () {
     }
 
     function compute(callback, mapping) {
+        var mappings = [],
+            i;
+
         callback();
 
+        for (i = 1; i < arguments.length; i++) {
+            mappings.push(arguments[i]);
+        }
+
         window.addEventListener('modelPropertySet', function (event) {
-            if (event.detail.mapping === mapping) {
+            if (mappings.indexOf(event.detail.mapping) !== -1) {
                 callback();
             }
         });

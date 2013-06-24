@@ -63,7 +63,7 @@
     </p>
 </body>
 
-<script src="js/KO-1.0.1.js"></script>
+<script src="js/KO-1.0.2.js"></script>
 <script>
     // ECMAScript 5 strict mode
     'use strict';
@@ -99,5 +99,9 @@
 
     KO.compute(function () {
         model.strength = model.level / 2;
-    }, 'level');
+
+        if (model.undead) {
+            model.strength--;
+        }
+    }, 'level', 'undead');
 </script>

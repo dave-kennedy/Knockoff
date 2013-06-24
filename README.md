@@ -53,9 +53,19 @@ Your markup in this case could be:
         Programming (Night): <input class="bind" data-mapping="skills.programming.night" type="text">
     </p>
 
-Of course, you can use constructors in your view model as well.
+Of course, you can use constructors in your view model as well:
 
-Finally, if you want a property that is computed from another property, use the `KO.compute` function:
+    function Person(name, level, race) {
+        this.name = name;
+        this.level = level;
+        this.race = race;
+    }
+    
+    var model = new Person('Dave', 10, 'Vulcan');
+    
+    KO.bind(model);
+
+If you want a property that is computed from another property, use the `KO.compute` function:
 
     var model = {
         name: 'Dave',
@@ -71,12 +81,10 @@ Finally, if you want a property that is computed from another property, use the 
 
 The first argument to `KO.compute` should be a callback function, while the second should be the name of a property to listen for changes on. In the example above, whenever the `level` property changes the callback will be executed and the `strength` property will be updated.
 
-### To-do
-
-I'd like to update the compute function so it accepts several properties to listen on, e.g.:
+Finally, you can tell `KO.compute` to listen on any number of properties like so:
 
     KO.compute(function () {
         model.strength = (model.level / 2) + model.beardLength;
     }, 'level', 'beardLength');
 
-This way, any time `level` or `beardLength` changes the callback will be executed.
+This way, any time `level` or `beardLength` changes the callback will be executed and `strength` will be updated.
