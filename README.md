@@ -73,4 +73,4 @@ Instead, I might define another public method:
         strength = level / 2;
     });
     
-I have no idea if either of these approaches is more feasbile, so we'll see.
+I have no idea which one of these approaches is more feasbile, so we'll see.
