@@ -55,5 +55,22 @@ Your markup in this case could be:
 
 Of course, you can use constructors in your view model as well.
 
+### To-do
 
-As of right now there is no way to define a property of your view model that is computed from another property. I might fix that at some point, or you can if you want to.
+As of right now there is no way to define a property of your view model that is computed from another property. One approach to this is to use proprietary types in the view model initializer. This is the approach taken by Knockout.
+
+But I don't want to clutter up the view model with that stuff. I'm thinking about adding a callback function to the `bind` function to handle computed properties, like this:
+
+    KO.bind(model, function (model) {
+        model.strength = model.level / 2;
+    });
+    
+To keep the page updated, I'd need to call that function every time any property changes.
+
+Instead, I might define another public method:
+
+    KO.listen(model.level, model.strength, function (level, strength) {
+        strength = level / 2;
+    });
+    
+I have no idea if either of these approaches is more feasbile, so we'll see.
