@@ -55,22 +55,28 @@ Your markup in this case could be:
 
 Of course, you can use constructors in your view model as well.
 
+Finally, if you want a property that is computed from another property, use the `KO.compute` function:
+
+    var model = {
+        name: 'Dave',
+        level: 10,
+        strength: 0
+    };
+    
+    KO.bind(model);
+    
+    KO.compute(function () {
+        model.strength = model.level / 2;
+    }, 'level');
+
+The first argument to `KO.compute` should be a callback function, while the second should be the name of a property to listen for changes on. In the example above, whenever the `level` property changes the callback will be executed and the `strength` property will be updated.
+
 ### To-do
 
-As of right now there is no way to define a property of your view model that is computed from another property. One approach to this is to use proprietary types in the view model initializer. This is the approach taken by Knockout.
+I'd like to update the compute function so it accepts several properties to listen on, e.g.:
 
-But I don't want to clutter up the view model with that stuff. I'm thinking about adding a callback function to the `bind` function to handle computed properties, like this:
+    KO.compute(function () {
+        model.strength = (model.level / 2) + model.beardLength;
+    }, 'level', 'beardLength');
 
-    KO.bind(model, function (model) {
-        model.strength = model.level / 2;
-    });
-    
-To keep the page updated, I'd need to call that function every time any property changes.
-
-Instead, I might define another public method:
-
-    KO.listen(model.level, model.strength, function (level, strength) {
-        strength = level / 2;
-    });
-    
-I have no idea which one of these approaches is more feasbile, so we'll see.
+This way, any time `level` or `beardLength` changes the callback will be executed.
