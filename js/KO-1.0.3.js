@@ -1,5 +1,5 @@
 /*!
- * Knockoff v1.0.2
+ * Knockoff v1.0.3
  * A JavaScript model binding library
  * http://github.com/davidkennedy85/Knockoff
  */
@@ -165,7 +165,7 @@ var KO = (function () {
         updateView(mappings);
     }
 
-    function compute(callback, mapping) {
+    function listen(callback, mapping) {
         var mappings = [],
             i;
 
@@ -185,7 +185,7 @@ var KO = (function () {
     var Module = {};
 
     Module.bind = bind;
-    Module.compute = compute;
+    Module.listen = listen;
 
     return Module;
 }());

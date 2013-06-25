@@ -65,7 +65,7 @@ Of course, you can use constructors in your view model as well:
     
     KO.bind(model);
 
-If you want a property that is computed from another property, use the `KO.compute` function:
+If you want a property that is computed from another property, use the `KO.listen` function:
 
     var model = {
         name: 'Dave',
@@ -75,15 +75,15 @@ If you want a property that is computed from another property, use the `KO.compu
     
     KO.bind(model);
     
-    KO.compute(function () {
+    KO.listen(function () {
         model.strength = model.level / 2;
     }, 'level');
 
-The first argument to `KO.compute` should be a callback function, while the second should be the name of a property to listen for changes on. In the example above, whenever the `level` property changes the callback will be executed and the `strength` property will be updated.
+The first argument to `KO.listen` should be a callback function, while the second should be the name of a property to listen for changes on. In the example above, whenever the `level` property changes the callback will be executed and the `strength` property will be updated.
 
-Finally, you can tell `KO.compute` to listen on any number of properties like so:
+Finally, you can tell `KO.listen` to listen on any number of properties like so:
 
-    KO.compute(function () {
+    KO.listen(function () {
         model.strength = (model.level / 2) + model.beardLength;
     }, 'level', 'beardLength');
 
