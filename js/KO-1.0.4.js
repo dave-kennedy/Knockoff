@@ -1,5 +1,5 @@
 /*!
- * Knockoff v1.0.3
+ * Knockoff v1.0.4
  * A JavaScript model binding library
  * http://github.com/davidkennedy85/Knockoff
  */
@@ -39,11 +39,15 @@ var KO = (function () {
     function setElementValue(el, val) {
         switch (el.type) {
             case 'text':
+            case 'select-one':
                 el.value = val;
+                break;
             case 'checkbox':
                 el.checked = val;
+                break;
             case undefined:
                 el.innerHTML = val;
+                break;
         }
     }
 

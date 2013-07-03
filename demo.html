@@ -23,6 +23,17 @@
         <input class="bind" data-mapping="level" id="level" type="text">
     </p>
     <p>
+        <label for="race">Race</label>
+    </p>
+    <p>
+        <select class="bind" data-mapping="race" id="race">
+            <option value="">Select one...</option>
+            <option value="Human">Human</option>
+            <option value="Klingon">Klingon</option>
+            <option value="Vulcan">Vulcan</option>
+        </select>
+    </p>
+    <p>
         <label for="strength">Strength</label>
     </p>
     <p>
@@ -63,7 +74,7 @@
     </p>
 </body>
 
-<script src="js/KO-1.0.3.js"></script>
+<script src="js/KO-1.0.4.js"></script>
 <script>
     // ECMAScript 5 strict mode
     'use strict';
@@ -73,6 +84,7 @@
 
         this.name = params.name;
         this.level = params.level;
+        this.race = params.race;
         this.strength = params.strength;
         this.undead = params.undead;
         this.wisdom = params.wisdom;
@@ -82,6 +94,7 @@
     var model = new Person({
         name: 'Dave',
         level: 10,
+        race: 'Human',
         undead: true,
         wisdom: {
             score: 5,
