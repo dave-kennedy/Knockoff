@@ -70,7 +70,7 @@ If you want a property that is computed from another property, use the `KO.liste
     var model = {
         name: 'Dave',
         level: 10,
-        strength: 0
+        strength: 5
     };
     
     KO.bind(model);
