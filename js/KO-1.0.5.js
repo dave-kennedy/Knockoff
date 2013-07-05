@@ -1,5 +1,5 @@
 /*!
- * Knockoff v1.0.4
+ * Knockoff v1.0.5
  * A JavaScript model binding library
  * http://github.com/davidkennedy85/Knockoff
  */
@@ -25,17 +25,6 @@ var KO = (function () {
         obj[props[0]] = val;
     }
 
-    function createPointer(model, mapping) {
-        return function (val) {
-            if (arguments.length > 0) {
-                setProperty(model, mapping.split('.'), val);
-                return val;
-            }
-
-            return getProperty(model, mapping.split('.'));
-        };
-    }
-
     function setElementValue(el, val) {
         switch (el.type) {
             case 'text':
@@ -51,19 +40,14 @@ var KO = (function () {
         }
     }
 
-    function addModelEvents(model, mapping) {
-        if (mapping === undefined) {
-            mapping = '';
+    function addGettersSetters(model, prefix) {
+        if (prefix === undefined) {
+            prefix = '';
         } else {
-            mapping = mapping + '.';
+            prefix = prefix + '.';
         }
 
         Object.keys(model).forEach(function (key) {
-            if (model[key] instanceof Object) {
-                addModelEvents(model[key], mapping + key);
-                return;
-            }
-
             var value = model[key];
 
             Object.defineProperty(model, key, {
@@ -75,105 +59,85 @@ var KO = (function () {
 
                     window.dispatchEvent(new CustomEvent('modelPropertySet', {
                         detail: {
-                            mapping: mapping + key,
-                            value: val
+                            mapping: prefix + key
                         }
                     }));
+
+                    if (val instanceof Object) {
+                        addGettersSetters(val, prefix + key);
+                    }
                 }
             });
+
+            if (model[key] instanceof Object) {
+                addGettersSetters(model[key], prefix + key);
+            }
         });
     }
 
-    function createMappings(model) {
-        var elements = document.getElementsByClassName('bind'),
-            mappings = {},
-            mapping,
-            i;
-
-        for (i = 0; i < elements.length; i++) {
-            mapping = elements[i].dataset.mapping;
-
-            if (mapping === undefined) {
-                break;
-            }
-
-            if (mappings[mapping] === undefined) {
-                mappings[mapping] = {
-                    pointer: createPointer(model, mapping),
-                    elements: [elements[i]]
-                };
-            } else {
-                mappings[mapping].elements.push(elements[i]);
-            }
-        }
-
-        return mappings;
-    }
-
-    function addEventListeners(mappings) {
+    function addEventListeners(model) {
         window.addEventListener('change', function (event) {
             var mapping = event.target.dataset.mapping,
                 newValue,
-                oldValue;
+                oldValue,
+                props;
 
             if (mapping === undefined) {
                 return;
             }
 
-            oldValue = mappings[mapping].pointer();
+            props = mapping.split('.');
+
+            oldValue = getProperty(model, props);
 
             if (typeof oldValue === 'boolean') {
                 newValue = event.target.checked;
             } else if (typeof oldValue === 'number') {
                 newValue = parseInt(event.target.value);
-
-                if (isNaN(newValue)) {
-                    event.target.value = oldValue;
-                    return;
-                }
             } else {
                 newValue = event.target.value;
             }
 
-            mappings[mapping].pointer(newValue);
+            setProperty(model, props, newValue);
         });
 
         window.addEventListener('modelPropertySet', function (event) {
-            var elements = mappings[event.detail.mapping].elements,
-                i;
-
-            for (i = 0; i < elements.length; i++) {
-                setElementValue(elements[i], event.detail.value);
-            }
+            updateView(model, event.detail.mapping);
         });
     }
 
-    function updateView(mappings) {
-        Object.keys(mappings).forEach(function (key) {
-            var elements = mappings[key].elements,
-                i;
+    function updateView(model, prefix) {
+        var elements,
+            i,
+            mapping,
+            props;
 
-            for (i = 0; i < elements.length; i++) {
-                setElementValue(elements[i], mappings[key].pointer());
-            }
-        });
+        if (prefix === undefined) {
+            elements = document.querySelectorAll('[data-mapping]');
+        } else {
+            elements = document.querySelectorAll('[data-mapping^="' + prefix + '"]');
+        }
+
+        for (i = 0; i < elements.length; i++) {
+            mapping = elements[i].dataset.mapping;
+
+            props = mapping.split('.');
+
+            setElementValue(elements[i], getProperty(model, props));
+        }
     }
 
     function bind(model) {
-        addModelEvents(model);
+        addGettersSetters(model);
 
-        var mappings = createMappings(model);
+        addEventListeners(model);
 
-        addEventListeners(mappings);
-
-        updateView(mappings);
+        updateView(model);
     }
 
-    function listen(callback, mapping) {
+    function listen(callback) {
         var mappings = [],
             i;
-
-        callback();
 
         for (i = 1; i < arguments.length; i++) {
             mappings.push(arguments[i]);
