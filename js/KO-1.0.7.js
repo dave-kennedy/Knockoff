@@ -1,5 +1,5 @@
 /*!
- * Knockoff v1.0.6
+ * Knockoff v1.0.7
  * A JavaScript model binding library
  * http://github.com/davidkennedy85/Knockoff
  */
@@ -53,6 +53,10 @@ var KO = (function () {
 
             Object.defineProperty(model, key, {
                 get: function () {
+					if (descriptor.get) {
+						return descriptor.get();
+					}
+
                     return value;
                 },
                 set: function (val) {

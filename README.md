@@ -12,19 +12,19 @@ The thing that's cool about Knockoff is you can wire up your view model with one
 Your markup would then look something like this:
 
     <p>
-        Name: <input class="bind" data-mapping="name" type="text">
+        Name: <input data-mapping="name" type="text">
     </p>
     <p>
-        Level: <input class="bind" data-mapping="level" type="text">
+        Level: <input data-mapping="level" type="text">
     </p>
 
-You can have lots of elements that are bound to a single property of your view model. Just make sure you add the `bind` class to each of them, and specify the property to bind to in the `data-mapping` attribute:
+You can have lots of elements that are bound to a single property of your view model. Just make sure you specify the property to bind to in the `data-mapping` attribute:
 
     <p>
-        Enter your name: <input class="bind" data-mapping="name" type="text">
+        Enter your name: <input data-mapping="name" type="text">
     </p>
     <p>
-        Hi, <span class="bind" data-mapping="name"></span>!
+        Hi, <span data-mapping="name"></span>!
     </p>
 
 Knockoff plays nice with complex view models like this:
@@ -44,13 +44,13 @@ Knockoff plays nice with complex view models like this:
 Your markup in this case could be:
 
     <h3>
-        <span class="bind" data-mapping="name"></span>'s Skills
+        <span data-mapping="name"></span>'s Skills
     </h3>
     <p>
-        Programming (Day): <input class="bind" data-mapping="skills.programming.day" type="text">
+        Programming (Day): <input data-mapping="skills.programming.day" type="text">
     </p>
     <p>
-        Programming (Night): <input class="bind" data-mapping="skills.programming.night" type="text">
+        Programming (Night): <input data-mapping="skills.programming.night" type="text">
     </p>
 
 Of course, you can use constructors in your view model as well:

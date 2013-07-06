@@ -9,24 +9,24 @@
 <body>
     <h1>Knockoff Demo</h1>
 
-    <h2>Character Sheet for <span class="bind" data-mapping="name"></span></h2>
+    <h2>Character Sheet for <span data-mapping="name"></span></h2>
     <p>
         <label for="name">Name</label>
     </p>
     <p>
-        <input class="bind" data-mapping="name" id="name" type="text">
+        <input data-mapping="name" id="name" type="text">
     </p>
     <p>
         <label for="level">Level</label>
     </p>
     <p>
-        <input class="bind" data-mapping="level" id="level" type="text">
+        <input data-mapping="level" id="level" type="text">
     </p>
     <p>
         <label for="race">Race</label>
     </p>
     <p>
-        <select class="bind" data-mapping="race" id="race">
+        <select data-mapping="race" id="race">
             <option value="">Select one...</option>
             <option value="Human">Human</option>
             <option value="Klingon">Klingon</option>
@@ -37,10 +37,10 @@
         <label for="strength">Strength</label>
     </p>
     <p>
-        <input class="bind" data-mapping="strength" id="strength" type="text">
+        <input data-mapping="strength" id="strength" type="text">
     </p>
     <p>
-        <input class="bind" data-mapping="undead" id="undead" type="checkbox" value="true">
+        <input data-mapping="undead" id="undead" type="checkbox" value="true">
         <label for="undead">Undead</label>
     </p>
 
@@ -49,13 +49,13 @@
         <label for="wisdom-score">Score</label>
     </p>
     <p>
-        <input class="bind" data-mapping="wisdom.score" id="wisdom-score" type="text">
+        <input data-mapping="wisdom.score" id="wisdom-score" type="text">
     </p>
     <p>
         <label for="wisdom-modifier">Modifier</label>
     </p>
     <p>
-        <input class="bind" data-mapping="wisdom.modifier" id="wisdom-modifier" type="text">
+        <input data-mapping="wisdom.modifier" id="wisdom-modifier" type="text">
     </p>
 
     <h2>Skills</h2>
@@ -64,17 +64,17 @@
         <label for="skills-programming-day">Day<label>
     </p>
     <p>
-        <input class="bind" data-mapping="skills.programming.day" id="skills-programming-day" type="text">
+        <input data-mapping="skills.programming.day" id="skills-programming-day" type="text">
     </p>
     <p>
         <label for="skills-programming-night">Night<label>
     </p>
     <p>
-        <input class="bind" data-mapping="skills.programming.night" id="skills-programming-night" type="text">
+        <input data-mapping="skills.programming.night" id="skills-programming-night" type="text">
     </p>
 </body>
 
-<script src="js/KO-1.0.6.js"></script>
+<script src="js/KO-1.0.7.js"></script>
 <script>
     // ECMAScript 5 strict mode
     'use strict';
