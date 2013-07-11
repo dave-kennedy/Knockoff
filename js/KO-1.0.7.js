@@ -53,9 +53,9 @@ var KO = (function () {
 
             Object.defineProperty(model, key, {
                 get: function () {
-					if (descriptor.get) {
-						return descriptor.get();
-					}
+                    if (descriptor.get) {
+                        return descriptor.get();
+                    }
 
                     return value;
                 },
