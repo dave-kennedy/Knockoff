@@ -1,5 +1,5 @@
 /*!
- * Knockoff v1.0.8
+ * Knockoff v1.0.9
  * A JavaScript model binding library
  * http://github.com/davidkennedy85/Knockoff
  */
@@ -53,16 +53,16 @@ var KO = (function () {
 
             Object.defineProperty(model, key, {
                 get: function () {
-                    if (descriptor.get) {
-                        return descriptor.get();
-                    }
+                    //if (descriptor.get) {
+                    //    return descriptor.get();
+                    //}
 
                     return value;
                 },
                 set: function (val) {
-                    if (descriptor.set) {
-                        descriptor.set(val);
-                    }
+                    //if (descriptor.set) {
+                    //    descriptor.set(val);
+                    //}
 
                     value = val;
 
@@ -84,39 +84,36 @@ var KO = (function () {
         });
     }
 
+    function changeListener(event) {
+        var mapping = event.target.dataset.mapping,
+            newValue,
+            oldValue,
+            props;
+
+        if (mapping === undefined) {
+            return;
+        }
+
+        props = mapping.split('.');
+
+        oldValue = getProperty(model, props);
+
+        if (typeof oldValue === 'boolean') {
+            newValue = event.target.checked;
+        } else if (typeof oldValue === 'number') {
+            newValue = parseInt(event.target.value);
+        } else {
+            newValue = event.target.value;
+        }
+
+        setProperty(model, props, newValue);
+    }
+
+    function modelPropertySetListener(event) {
+        updateView(model, event.detail.mapping);
+    }
+
     function addEventListeners(model) {
-        var changeListener = function (event) {
-            var mapping = event.target.dataset.mapping,
-                newValue,
-                oldValue,
-                props;
-
-            if (mapping === undefined) {
-                return;
-            }
-
-            props = mapping.split('.');
-
-            oldValue = getProperty(model, props);
-
-            if (typeof oldValue === 'boolean') {
-                newValue = event.target.checked;
-            } else if (typeof oldValue === 'number') {
-                newValue = parseInt(event.target.value);
-            } else {
-                newValue = event.target.value;
-            }
-
-            setProperty(model, props, newValue);
-        };
-
-        var modelPropertySetListener = function (event) {
-            updateView(model, event.detail.mapping);
-        };
-
-        window.removeEventListener('change', changeListener);
-        window.removeEventListener('modelPropertySet', modelPropertySetListener);
-
         window.addEventListener('change', changeListener);
         window.addEventListener('modelPropertySet', modelPropertySetListener);
     }
