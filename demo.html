@@ -74,7 +74,7 @@
     </p>
 </body>
 
-<script src="js/KO-1.0.10.js"></script>
+<script src="js/KO-1.0.11.js"></script>
 <script>
     // ECMAScript 5 strict mode
     'use strict';
@@ -91,7 +91,7 @@
         this.skills = params.skills;
     }
 
-    var model = new Person({
+    var person = new Person({
         name: 'Dave',
         level: 10,
         race: 'Human',
@@ -109,13 +109,13 @@
         }
     });
 
-    KO.bind(model);
+    KO.bind(person);
 
     KO.listen(function () {
-        model.strength = model.level / 2;
+        person.strength = person.level / 2;
 
-        if (model.undead) {
-            model.strength--;
+        if (person.undead) {
+            person.strength--;
         }
     }, 'level', 'undead');
 </script>
