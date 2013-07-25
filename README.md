@@ -1,4 +1,4 @@
-Knockoff is a JavaScript model binding library. The name is stolen from [Knockout](http://knockoutjs.com), a much better library that you should probably use instead, at least until I get the kinks worked out.
+Knockoff is a JavaScript model binding library. The name is stolen from [Knockout](http://knockoutjs.com), which is hardly similar but probably has less bugs.
 
 The thing that's cool about Knockoff is you can wire up your view model with one function call, and you don't have to clutter your view model with weird proprietary types:
 
@@ -17,6 +17,8 @@ Your markup would then look something like this:
     <p>
         Level: <input data-mapping="level" type="text">
     </p>
+
+When you change the value of an element that's bound to a property of your view model, that property will be updated accordingly. This is true the other way around too - when you change the value of a property that's bound to an element in your view, that element will be updated as well.
 
 You can have lots of elements that are bound to a single property of your view model. Just make sure you specify the property to bind to in the `data-mapping` attribute:
 
@@ -81,7 +83,7 @@ If you want a property that is computed from another property, use the `KO.liste
 
 The first argument to `KO.listen` should be a callback function, while the second should be the name of a property to listen for changes on. In the example above, whenever the `level` property changes the callback will be executed and the `strength` property will be updated.
 
-Finally, you can tell `KO.listen` to listen on any number of properties like so:
+You can tell `KO.listen` to listen on any number of properties like so:
 
     KO.listen(function () {
         model.strength = (model.level / 2) + model.beardLength;
@@ -89,9 +91,23 @@ Finally, you can tell `KO.listen` to listen on any number of properties like so:
 
 This way, any time `level` or `beardLength` changes the callback will be executed and `strength` will be updated.
 
-###Quirks
+Finally, if you view model and/or view changes drastically (as in adding properties to your view model or adding elements to your view), you can just call `KO.bind` again without breaking any functionality:
 
-This isn't a bug per se. Knockoff relies on ECMAScript 5's Object.defineProperty to define getters and setters on bound properties. So if you also use Object.defineProperty to define getters and setters on your model, make sure you call `KO.bind` _last_ (after defining your own getters and setters). This is because the getters and setters defined by Knockoff will call any existing getters and setters instead of overwriting them. For example, this works:
+    var model = {
+        name: 'Dave'
+    };
+    
+    KO.bind(model);
+    
+    model.level = 10;
+    
+    document.getElementById('whatever').innerHTML = '<input data-mapping="level" type="text">';
+    
+    KO.bind(model);
+
+###Defining your own getters and setters
+
+Knockoff relies on ECMAScript 5's Object.defineProperty to define getters and setters on the properties of your view model. If you also use Object.defineProperty to define getters and setters on properties, make sure you call `KO.bind` _last_ (after defining your own getters and setters). This is because the getters and setters defined by Knockoff will call any existing getters and setters instead of overwriting them. For example, this works:
 
     var model = {
         name: 'Dave'
