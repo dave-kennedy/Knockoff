@@ -88,3 +88,61 @@ Finally, you can tell `KO.listen` to listen on any number of properties like so:
     }, 'level', 'beardLength');
 
 This way, any time `level` or `beardLength` changes the callback will be executed and `strength` will be updated.
+
+###Quirks
+
+This isn't a bug per se. Knockoff relies on ECMAScript 5's Object.defineProperty to define getters and setters on bound properties. So if you also use Object.defineProperty to define getters and setters on your model, make sure you call `KO.bind` _last_ (after defining your own getters and setters). This is because the getters and setters defined by Knockoff will call any existing getters and setters instead of overwriting them. For example, this works:
+
+    var model = {
+        name: 'Dave'
+    };
+    
+    var name = model.name;
+    
+    Object.defineProperty(model, 'name', {
+        get: function () {
+            return name;
+        },
+        set: function (val) {
+            console.log('model.name setter called'); 
+            name = val;
+        }
+    });
+    
+    KO.bind(model);
+
+But this will totally break the model binding:
+
+    var model = {
+        name: 'Dave'
+    };
+    
+    var name = model.name;
+    
+    KO.bind(model);
+    
+    Object.defineProperty(model, 'name', {
+        get: function () {
+            return name;
+        },
+        set: function (val) {
+            console.log('model.name setter called'); 
+            name = val;
+        }
+    });
+
+So don't do it. You can always use `KO.listen` instead of defining your own setter like so:
+
+    var model = {
+        name: 'Dave'
+    };
+    
+    var name = model.name;
+    
+    KO.bind(model);
+    
+    KO.listen(function () {
+        console.log('model.name was set');
+    }, 'name');
+
+There isn't any similar workaround for defining your own getter at the moment. So if you absolutely have to, just call `KO.bind` last.
