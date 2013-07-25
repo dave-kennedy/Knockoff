@@ -1,5 +1,5 @@
 /*!
- * Knockoff v1.0.9
+ * Knockoff v1.0.10
  * A JavaScript model binding library
  * http://github.com/davidkennedy85/Knockoff
  */
@@ -51,31 +51,45 @@ var KO = (function () {
             var descriptor = Object.getOwnPropertyDescriptor(model, key),
                 value = model[key];
 
-            Object.defineProperty(model, key, {
-                get: function () {
-                    //if (descriptor.get) {
-                    //    return descriptor.get();
-                    //}
+            function modelPropertyGetter() {
+                return value;
+            }
 
-                    return value;
-                },
-                set: function (val) {
-                    //if (descriptor.set) {
-                    //    descriptor.set(val);
-                    //}
+            function modelPropertySetter(val) {
+                value = val;
 
-                    value = val;
-
-                    window.dispatchEvent(new CustomEvent('modelPropertySet', {
-                        detail: {
-                            mapping: prefix + key
-                        }
-                    }));
-
-                    if (val instanceof Object) {
-                        addGettersSetters(val, prefix + key);
+                window.dispatchEvent(new CustomEvent('modelPropertySet', {
+                    detail: {
+                        mapping: prefix + key
                     }
+                }));
+
+                if (val instanceof Object) {
+                    addGettersSetters(val, prefix + key);
                 }
+            }
+
+            Object.defineProperty(model, key, {
+                get: (function () {
+                    if (descriptor.get !== undefined && descriptor.get.name !== 'modelPropertyGetter') {
+                        return function () {
+                            return descriptor.get();
+                        };
+                    }
+
+                    return modelPropertyGetter;
+                }()),
+                set: (function () {
+                    if (descriptor.set !== undefined && descriptor.set.name !== 'modelPropertySetter') {
+                        return function (val) {
+                            descriptor.set(val);
+
+                            modelPropertySetter(val);
+                        };
+                    }
+
+                    return modelPropertySetter;
+                }())
             });
 
             if (model[key] instanceof Object) {
