@@ -1,5 +1,5 @@
 /*!
- * Knockoff v1.0.11
+ * Knockoff v1.0.12
  * A JavaScript model binding library
  * http://github.com/davidkennedy85/Knockoff
  */
@@ -7,6 +7,9 @@
 var KO = (function () {
     // ECMAScript 5 strict mode
     'use strict';
+
+    var eventListenersAdded = false,
+        module = {};
 
     function getProperty(obj, props) {
         if (obj[props[0]] instanceof Object) {
@@ -55,6 +58,10 @@ var KO = (function () {
                 return value;
             }
 
+            function modelPropertyGetterOverride() {
+                return descriptor.get();
+            }
+
             function modelPropertySetter(val) {
                 value = val;
 
@@ -69,71 +76,36 @@ var KO = (function () {
                 }
             }
 
+            function modelPropertySetterOverride(val) {
+                descriptor.set(val);
+
+                modelPropertySetter(val);
+            }
+
             Object.defineProperty(model, key, {
                 get: (function () {
-                    if (descriptor.get !== undefined && descriptor.get.name !== 'modelPropertyGetter') {
-                        return function () {
-                            return descriptor.get();
-                        };
+                    if (descriptor.get === undefined) {
+                        return modelPropertyGetter;
+                    } else if (descriptor.get.name !== 'modelPropertyGetter' && descriptor.get.name !== 'modelPropertyGetterOverride') {
+                        return modelPropertyGetterOverride;
                     }
 
-                    return modelPropertyGetter;
+                    return descriptor.get;
                 }()),
                 set: (function () {
-                    if (descriptor.set !== undefined && descriptor.set.name !== 'modelPropertySetter') {
-                        return function (val) {
-                            descriptor.set(val);
-
-                            modelPropertySetter(val);
-                        };
+                    if (descriptor.set === undefined) {
+                        return modelPropertySetter;
+                    } else if (descriptor.set.name !== 'modelPropertySetter' && descriptor.set.name !== 'modelPropertySetterOverride') {
+                        return modelPropertySetterOverride;
                     }
 
-                    return modelPropertySetter;
+                    return descriptor.set;
                 }())
             });
 
             if (model[key] instanceof Object) {
                 addGettersSetters(model[key], prefix + key);
             }
-        });
-    }
-
-    function changeListener(event, model) {
-        var mapping = event.target.dataset.mapping,
-            newValue,
-            oldValue,
-            props;
-
-        if (mapping === undefined) {
-            return;
-        }
-
-        props = mapping.split('.');
-
-        oldValue = getProperty(model, props);
-
-        if (typeof oldValue === 'boolean') {
-            newValue = event.target.checked;
-        } else if (typeof oldValue === 'number') {
-            newValue = parseInt(event.target.value);
-        } else {
-            newValue = event.target.value;
-        }
-
-        setProperty(model, props, newValue);
-    }
-
-    function modelPropertySetListener(event, model) {
-        updateView(model, event.detail.mapping);
-    }
-
-    function addEventListeners(model) {
-        window.addEventListener('change', function (event) {
-            changeListener(event, model);
-        });
-
-        window.addEventListener('modelPropertySet', function (event) {
-            modelPropertySetListener(event, model);
         });
     }
 
@@ -158,15 +130,52 @@ var KO = (function () {
         }
     }
 
-    function bind(model) {
-        addGettersSetters(model);
+    function addEventListeners(model) {
+        if (eventListenersAdded === true) {
+            return;
+        }
 
-        addEventListeners(model);
+        window.addEventListener('change', function (event) {
+            var mapping = event.target.dataset.mapping,
+                newValue,
+                oldValue,
+                props;
 
-        updateView(model);
+            if (mapping === undefined) {
+                return;
+            }
+
+            props = mapping.split('.');
+
+            oldValue = getProperty(model, props);
+
+            if (typeof oldValue === 'boolean') {
+                newValue = event.target.checked;
+            } else if (typeof oldValue === 'number') {
+                newValue = parseInt(event.target.value);
+            } else {
+                newValue = event.target.value;
+            }
+
+            setProperty(model, props, newValue);
+        });
+
+        window.addEventListener('modelPropertySet', function (event) {
+            updateView(model, event.detail.mapping);
+        });
+
+        eventListenersAdded = true;
     }
 
-    function listen(callback) {
+    module.bind = function (model) {
+        addGettersSetters(model);
+
+        updateView(model);
+
+        addEventListeners(model);
+    };
+
+    module.listen = function (callback) {
         var mappings = [],
             i;
 
@@ -179,12 +188,7 @@ var KO = (function () {
                 callback();
             }
         });
-    }
+    };
 
-    var Module = {};
-
-    Module.bind = bind;
-    Module.listen = listen;
-
-    return Module;
+    return module;
 }());
