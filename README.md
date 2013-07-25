@@ -147,18 +147,4 @@ But this will totally break the model binding:
         }
     });
 
-So don't do it. You can always use `KO.listen` instead of defining your own setter like so:
-
-    var model = {
-        name: 'Dave'
-    };
-    
-    var name = model.name;
-    
-    KO.bind(model);
-    
-    KO.listen(function () {
-        console.log('model.name was set');
-    }, 'name');
-
-There isn't any similar workaround for defining your own getter at the moment. So if you absolutely have to, just call `KO.bind` last.
+You can always use `KO.listen` instead of defining your own setter. There isn't any similar workaround for defining your own getter at the moment. So if you absolutely have to, just call `KO.bind` last.
