@@ -1,5 +1,5 @@
 /*!
- * Knockoff v1.0.12
+ * Knockoff v1.0.13
  * A JavaScript model binding library
  * http://github.com/davidkennedy85/Knockoff
  */
@@ -176,12 +176,7 @@ var KO = (function () {
     };
 
     module.listen = function (callback) {
-        var mappings = [],
-            i;
-
-        for (i = 1; i < arguments.length; i++) {
-            mappings.push(arguments[i]);
-        }
+        var mappings = Array.prototype.slice.call(arguments, 1);
 
         window.addEventListener('modelPropertySet', function (event) {
             if (mappings.indexOf(event.detail.mapping) !== -1) {
