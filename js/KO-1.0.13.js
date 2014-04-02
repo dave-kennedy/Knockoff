@@ -1,9 +1,3 @@
-/*!
- * Knockoff v1.0.13
- * A JavaScript model binding library
- * http://github.com/davidkennedy85/Knockoff
- */
-
 var KO = (function () {
     // ECMAScript 5 strict mode
     'use strict';
