@@ -2,7 +2,6 @@
 
 <head>
     <meta charset="utf-8">
-
     <title>Knockoff Demo</title>
 </head>
 
@@ -11,66 +10,44 @@
 
     <h2>Character Sheet for <span data-mapping="name"></span></h2>
     <p>
-        <label for="name">Name</label>
+        <label>Name: <input data-mapping="name" type="text"></label>
     </p>
     <p>
-        <input data-mapping="name" id="name" type="text">
+        <label>Level: <input data-mapping="level" type="text"></label>
     </p>
     <p>
-        <label for="level">Level</label>
+        <label>
+            Race:
+            <select data-mapping="race">
+                <option value="">Select one...</option>
+                <option value="Human">Human</option>
+                <option value="Klingon">Klingon</option>
+                <option value="Vulcan">Vulcan</option>
+            </select>
+        </label>
     </p>
     <p>
-        <input data-mapping="level" id="level" type="text">
+        <label>Strength: <input data-mapping="strength" type="text"></label>
     </p>
     <p>
-        <label for="race">Race</label>
-    </p>
-    <p>
-        <select data-mapping="race" id="race">
-            <option value="">Select one...</option>
-            <option value="Human">Human</option>
-            <option value="Klingon">Klingon</option>
-            <option value="Vulcan">Vulcan</option>
-        </select>
-    </p>
-    <p>
-        <label for="strength">Strength</label>
-    </p>
-    <p>
-        <input data-mapping="strength" id="strength" type="text">
-    </p>
-    <p>
-        <input data-mapping="undead" id="undead" type="checkbox" value="true">
-        <label for="undead">Undead</label>
+        <label><input data-mapping="undead" type="checkbox" value="true"> Undead</label>
     </p>
 
     <h2>Wisdom</h2>
     <p>
-        <label for="wisdom-score">Score</label>
+        <label>Score: <input data-mapping="wisdom.score" type="text"></label>
     </p>
     <p>
-        <input data-mapping="wisdom.score" id="wisdom-score" type="text">
-    </p>
-    <p>
-        <label for="wisdom-modifier">Modifier</label>
-    </p>
-    <p>
-        <input data-mapping="wisdom.modifier" id="wisdom-modifier" type="text">
+        <label>Modifier: <input data-mapping="wisdom.modifier" type="text"></label>
     </p>
 
     <h2>Skills</h2>
     <h3>Programming</h3>
     <p>
-        <label for="skills-programming-day">Day<label>
+        <label>Day: <input data-mapping="skills.programming.day" type="text"><label>
     </p>
     <p>
-        <input data-mapping="skills.programming.day" id="skills-programming-day" type="text">
-    </p>
-    <p>
-        <label for="skills-programming-night">Night<label>
-    </p>
-    <p>
-        <input data-mapping="skills.programming.night" id="skills-programming-night" type="text">
+        <label>Night: <input data-mapping="skills.programming.night" type="text"><label>
     </p>
 </body>
 
