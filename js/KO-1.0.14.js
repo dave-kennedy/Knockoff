@@ -61,7 +61,8 @@ var KO = (function () {
 
                 window.dispatchEvent(new CustomEvent('modelPropertySet', {
                     detail: {
-                        mapping: prefix + key
+                        mapping: prefix + key,
+                        value: val
                     }
                 }));
 
@@ -174,7 +175,7 @@ var KO = (function () {
 
         window.addEventListener('modelPropertySet', function (event) {
             if (mappings.indexOf(event.detail.mapping) !== -1) {
-                callback();
+                callback(event.detail.value, event.detail.mapping);
             }
         });
     };
