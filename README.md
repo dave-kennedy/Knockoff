@@ -55,7 +55,7 @@ Your markup in this case could be:
         Programming (Night): <input data-mapping="skills.programming.night" type="text">
     </p>
 
-Of course, you can use constructors in your view model as well:
+You don't have to use object initializers to create your view model. This works just as well:
 
     function Person(name, level, race) {
         this.name = name;
@@ -67,7 +67,7 @@ Of course, you can use constructors in your view model as well:
     
     KO.bind(model);
 
-If you view model and/or view changes drastically (as in adding properties to your view model or adding elements to your view), you can just call `KO.bind` again without breaking any functionality:
+If your view model and/or view changes drastically (as in adding properties to your view model or adding elements to your view), you can just call `KO.bind` again without breaking any functionality:
 
     var model = {
         name: 'Dave'
