@@ -67,6 +67,22 @@ Of course, you can use constructors in your view model as well:
     
     KO.bind(model);
 
+If you view model and/or view changes drastically (as in adding properties to your view model or adding elements to your view), you can just call `KO.bind` again without breaking any functionality:
+
+    var model = {
+        name: 'Dave'
+    };
+    
+    KO.bind(model);
+    
+    model.level = 10;
+    
+    document.getElementById('whatever').innerHTML = '<input data-mapping="level" type="text">';
+    
+    KO.bind(model);
+
+###Computed properties
+
 If you want a property that is computed from another property, use the `KO.listen` function:
 
     var model = {
@@ -103,20 +119,6 @@ You can also tell `KO.listen` to listen for changes on any property that matches
         var skill = match[1];
         model.skills[skill].skillMod = model.skills[skill].skillMod - event.detail.oldValue + event.detail.newValue;
     }, /skills\.(.*)\.ranks/);
-
-Finally, if you view model and/or view changes drastically (as in adding properties to your view model or adding elements to your view), you can just call `KO.bind` again without breaking any functionality:
-
-    var model = {
-        name: 'Dave'
-    };
-    
-    KO.bind(model);
-    
-    model.level = 10;
-    
-    document.getElementById('whatever').innerHTML = '<input data-mapping="level" type="text">';
-    
-    KO.bind(model);
 
 ###Defining your own getters and setters
 
