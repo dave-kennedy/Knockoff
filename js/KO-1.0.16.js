@@ -13,26 +13,26 @@ var KO = (function () {
         return obj[props[0]];
     }
 
-    function setProperty(obj, props, val) {
+    function setProperty(obj, props, newValue) {
         if (obj[props[0]] instanceof Object) {
-            setProperty(obj[props[0]], props.slice(1, props.length), val);
+            setProperty(obj[props[0]], props.slice(1, props.length), newValue);
             return;
         }
 
-        obj[props[0]] = val;
+        obj[props[0]] = newValue;
     }
 
-    function setElementValue(el, val) {
+    function setElementValue(el, newValue) {
         switch (el.type) {
             case 'text':
             case 'select-one':
-                el.value = val;
+                el.value = newValue;
                 break;
             case 'checkbox':
-                el.checked = val;
+                el.checked = newValue;
                 break;
             case undefined:
-                el.innerHTML = val;
+                el.innerHTML = newValue;
                 break;
         }
     }
@@ -46,35 +46,38 @@ var KO = (function () {
 
         Object.keys(model).forEach(function (key) {
             var descriptor = Object.getOwnPropertyDescriptor(model, key),
-                value = model[key];
+                currentValue = model[key];
 
             function modelPropertyGetter() {
-                return value;
+                return currentValue;
             }
 
             function modelPropertyGetterOverride() {
                 return descriptor.get();
             }
 
-            function modelPropertySetter(val) {
-                value = val;
+            function modelPropertySetter(newValue) {
+                var oldValue = currentValue;
+
+                currentValue = newValue;
 
                 window.dispatchEvent(new CustomEvent('modelPropertySet', {
                     detail: {
                         mapping: prefix + key,
-                        value: val
+                        newValue: newValue,
+                        oldValue: oldValue
                     }
                 }));
 
-                if (val instanceof Object) {
-                    addGettersSetters(val, prefix + key);
+                if (newValue instanceof Object) {
+                    addGettersSetters(newValue, prefix + key);
                 }
             }
 
-            function modelPropertySetterOverride(val) {
-                descriptor.set(val);
+            function modelPropertySetterOverride(newValue) {
+                descriptor.set(newValue);
 
-                modelPropertySetter(val);
+                modelPropertySetter(newValue);
             }
 
             Object.defineProperty(model, key, {
@@ -176,7 +179,7 @@ var KO = (function () {
                 var match = event.detail.mapping.match(mappings);
 
                 if (match !== null) {
-                    callback(event.detail.value, event.detail.mapping, match);
+                    callback(event, match);
                 }
             });
 
@@ -185,7 +188,7 @@ var KO = (function () {
 
         window.addEventListener('modelPropertySet', function (event) {
             if (mappings.indexOf(event.detail.mapping) !== -1) {
-                callback(event.detail.value, event.detail.mapping);
+                callback(event);
             }
         });
     };
