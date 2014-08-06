@@ -170,8 +170,18 @@ var KO = (function () {
         addEventListeners(model);
     };
 
-    module.listen = function (callback) {
-        var mappings = Array.prototype.slice.call(arguments, 1);
+    module.listen = function (callback, mappings) {
+        if (mappings instanceof RegExp) {
+            window.addEventListener('modelPropertySet', function (event) {
+                var match = event.detail.mapping.match(mappings);
+
+                if (match !== null) {
+                    callback(event.detail.value, event.detail.mapping, match);
+                }
+            });
+
+            return;
+        }
 
         window.addEventListener('modelPropertySet', function (event) {
             if (mappings.indexOf(event.detail.mapping) !== -1) {
