@@ -1,4 +1,4 @@
-Knockoff is a JavaScript model binding library. The name is stolen from [Knockout](http://knockoutjs.com), which is hardly similar but probably has less bugs.
+Knockoff is a JavaScript model binding library. The name is stolen from [Knockout](http://knockoutjs.com), which is hardly similar but I couldn't think of anything better.
 
 The thing that's cool about Knockoff is you can wire up your view model with one function call, and you don't have to clutter your view model with weird proprietary types:
 
