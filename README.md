@@ -87,9 +87,21 @@ You can tell `KO.listen` to listen on any number of properties like so:
 
     KO.listen(function () {
         model.strength = (model.level / 2) + model.beardLength;
-    }, 'level', 'beardLength');
+    }, ['level', 'beardLength']);
 
 This way, any time `level` or `beardLength` changes the callback will be executed and `strength` will be updated.
+
+The callback function receives the updated value as the first argument and the name of the property that was updated as the second, which might come in handy:
+
+    KO.listen(function (value, mapping) {
+        alert(mapping + ' just changed to ' + value);
+    }, ['beard.color', 'beard.size', 'beard.thickness']);
+
+You can also tell `KO.listen` to listen for changes on any property that matches a regular expression. In this case, the callback function also receives an array containing the matched results as the third argument.
+
+    KO.listen(function (value, mapping, match) {
+        alert('My beard just changed ' + match[1] + '! It is now ' + value + '.');
+    }, /beard\.(.*)/);
 
 Finally, if you view model and/or view changes drastically (as in adding properties to your view model or adding elements to your view), you can just call `KO.bind` again without breaking any functionality:
 
