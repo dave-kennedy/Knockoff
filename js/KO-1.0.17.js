@@ -149,10 +149,8 @@ var KO = (function () {
 
             if (typeof oldValue === 'boolean') {
                 newValue = event.target.checked;
-            } else if (typeof oldValue === 'number') {
-                newValue = parseInt(event.target.value);
             } else {
-                newValue = event.target.value;
+                newValue = parseInt(event.target.value) || event.target.value;
             }
 
             setProperty(model, props, newValue);
