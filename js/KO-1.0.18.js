@@ -6,7 +6,11 @@ var KO = (function () {
         module = {};
 
     function getProperty(obj, props) {
-        if (obj[props[0]] instanceof Object) {
+        if (props.length > 1) {
+            if (obj[props[0]] === undefined) {
+                return;
+            }
+
             return getProperty(obj[props[0]], props.slice(1, props.length));
         }
 
@@ -14,39 +18,53 @@ var KO = (function () {
     }
 
     function setProperty(obj, props, newValue) {
-        if (obj[props[0]] instanceof Object) {
-            setProperty(obj[props[0]], props.slice(1, props.length), newValue);
-            return;
+        if (props.length > 1) {
+            if (obj[props[0]] === undefined) {
+                obj[props[0]] = {};
+            }
+
+            return setProperty(obj[props[0]], props.slice(1, props.length), newValue);
         }
 
-        obj[props[0]] = newValue;
+        obj[props[0]] = parseInt(newValue) || newValue;
+    }
+
+    function getElementValue(el) {
+        switch (el.type) {
+            case 'text':
+            case 'select-one':
+                return el.value;
+            case 'checkbox':
+                return el.checked;
+            default:
+                return el.innerHTML;
+        }
     }
 
     function setElementValue(el, newValue) {
         switch (el.type) {
             case 'text':
             case 'select-one':
-                el.value = newValue;
+                el.value = newValue === undefined ? '' : newValue;
                 break;
             case 'checkbox':
-                el.checked = newValue;
+                el.checked = newValue === undefined ? false : newValue;
                 break;
-            case undefined:
-                el.innerHTML = newValue;
-                break;
+            default:
+                el.innerHTML = newValue === undefined ? '' : newValue;
         }
     }
 
-    function addGettersSetters(model, prefix) {
+    function addGettersSetters(obj, prefix) {
         if (prefix === undefined) {
             prefix = '';
         } else {
             prefix = prefix + '.';
         }
 
-        Object.keys(model).forEach(function (key) {
-            var descriptor = Object.getOwnPropertyDescriptor(model, key),
-                currentValue = model[key];
+        Object.keys(obj).forEach(function (key) {
+            var descriptor = Object.getOwnPropertyDescriptor(obj, key),
+                currentValue = obj[key];
 
             function modelPropertyGetter() {
                 return currentValue;
@@ -80,7 +98,7 @@ var KO = (function () {
                 modelPropertySetter(newValue);
             }
 
-            Object.defineProperty(model, key, {
+            Object.defineProperty(obj, key, {
                 get: (function () {
                     if (descriptor.get === undefined) {
                         return modelPropertyGetter;
@@ -101,8 +119,8 @@ var KO = (function () {
                 }())
             });
 
-            if (model[key] instanceof Object) {
-                addGettersSetters(model[key], prefix + key);
+            if (obj[key] instanceof Object) {
+                addGettersSetters(obj[key], prefix + key);
             }
         });
     }
@@ -135,8 +153,6 @@ var KO = (function () {
 
         window.addEventListener('change', function (event) {
             var mapping = event.target.dataset.mapping,
-                newValue,
-                oldValue,
                 props;
 
             if (mapping === undefined) {
@@ -145,15 +161,7 @@ var KO = (function () {
 
             props = mapping.split('.');
 
-            oldValue = getProperty(model, props);
-
-            if (typeof oldValue === 'boolean') {
-                newValue = event.target.checked;
-            } else {
-                newValue = parseInt(event.target.value) || event.target.value;
-            }
-
-            setProperty(model, props, newValue);
+            setProperty(model, props, getElementValue(event.target));
         });
 
         window.addEventListener('modelPropertySet', function (event) {
