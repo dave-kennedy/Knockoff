@@ -26,7 +26,13 @@ var KO = (function () {
             return setProperty(obj[props[0]], props.slice(1, props.length), newValue);
         }
 
-        obj[props[0]] = parseInt(newValue) || newValue;
+        if (!isNaN(newValue)) {
+            obj[props[0]] = parseInt(newValue);
+
+            return;
+        }
+
+        obj[props[0]] = newValue;
     }
 
     function getElementValue(el) {
@@ -102,7 +108,9 @@ var KO = (function () {
                 get: (function () {
                     if (descriptor.get === undefined) {
                         return modelPropertyGetter;
-                    } else if (descriptor.get.name !== 'modelPropertyGetter' && descriptor.get.name !== 'modelPropertyGetterOverride') {
+                    }
+
+                    if (descriptor.get.name !== 'modelPropertyGetter' && descriptor.get.name !== 'modelPropertyGetterOverride') {
                         return modelPropertyGetterOverride;
                     }
 
@@ -111,7 +119,9 @@ var KO = (function () {
                 set: (function () {
                     if (descriptor.set === undefined) {
                         return modelPropertySetter;
-                    } else if (descriptor.set.name !== 'modelPropertySetter' && descriptor.set.name !== 'modelPropertySetterOverride') {
+                    }
+
+                    if (descriptor.set.name !== 'modelPropertySetter' && descriptor.set.name !== 'modelPropertySetterOverride') {
                         return modelPropertySetterOverride;
                     }
 
