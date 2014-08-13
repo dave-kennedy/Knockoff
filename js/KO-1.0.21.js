@@ -66,6 +66,10 @@ var KO = (function () {
     }
 
     function addGettersSetters(obj, prefix) {
+        if (obj === undefined) {
+            obj = module.model;
+        }
+
         if (prefix === undefined) {
             prefix = '';
         } else {
@@ -139,7 +143,7 @@ var KO = (function () {
         });
     }
 
-    function updateView(model, prefix) {
+    function updateView(prefix) {
         var elements,
             i,
             mapping,
@@ -156,11 +160,11 @@ var KO = (function () {
 
             props = mapping.split('.');
 
-            setElementValue(elements[i], getProperty(model, props));
+            setElementValue(elements[i], getProperty(module.model, props));
         }
     }
 
-    function addEventListeners(model) {
+    function addEventListeners() {
         if (eventListenersAdded === true) {
             return;
         }
@@ -175,25 +179,27 @@ var KO = (function () {
 
             props = mapping.split('.');
 
-            setProperty(model, props, getElementValue(event.target));
+            setProperty(module.model, props, getElementValue(event.target));
         });
 
         window.addEventListener('modelPropertySet', function (event) {
-            updateView(model, event.detail.mapping);
+            updateView(event.detail.mapping);
         });
 
         eventListenersAdded = true;
     }
 
     module.bind = function (model) {
-        addGettersSetters(model);
+        module.model = model;
 
-        updateView(model);
+        addGettersSetters();
 
-        addEventListeners(model);
+        updateView();
+
+        addEventListeners();
     };
 
-    module.listen = function (callback, mappings) {
+    module.listen = function (mappings, callback) {
         if (mappings instanceof RegExp) {
             window.addEventListener('modelPropertySet', function (event) {
                 var match = event.detail.mapping.match(mappings);

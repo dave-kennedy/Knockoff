@@ -51,7 +51,7 @@
     </p>
 </body>
 
-<script src="js/KO-1.0.20.js"></script>
+<script src="js/KO-1.0.21.js"></script>
 <script>
     // ECMAScript 5 strict mode
     'use strict';
@@ -88,11 +88,11 @@
 
     KO.bind(person);
 
-    KO.listen(function () {
+    KO.listen(['level', 'undead'], function () {
         person.strength = person.level / 2;
 
         if (person.undead) {
             person.strength--;
         }
-    }, ['level', 'undead']);
+    });
 </script>

@@ -29,31 +29,48 @@ You can have lots of elements that are bound to a single property of your view m
         Hi, <span data-mapping="name"></span>!
     </p>
 
-Knockoff plays nice with complex view models like this:
+Knockoff plays nice with complex view models containing arrays and nested objects:
 
     var model = {
-        name: 'Dave',
         skills: {
             programming: {
                 day: 10,
                 night: 100
             }
-        }
+        },
+        powers: [
+            { name: 'Flurry of Keystrokes', description: 'You can type up to 80 word per minute.' },
+            { name: 'Telekenesis', description: 'You can move a pebble-sized object with your brain once per day.' }
+        ]
     };
     
     KO.bind(model);
 
-Your markup in this case could be:
+Your markup in this case might look like this:
 
-    <h3>
-        <span data-mapping="name"></span>'s Skills
-    </h3>
+    <h3>Skills</h3>
     <p>
         Programming (Day): <input data-mapping="skills.programming.day" type="text">
     </p>
     <p>
         Programming (Night): <input data-mapping="skills.programming.night" type="text">
     </p>
+    
+    <h3>Powers</h3>
+    <table>
+        <tr>
+            <th>Power</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><input data-mapping="powers.0.name" /></td>
+            <td><input data-mapping="powers.0.description" /></td>
+        </tr>
+        <tr>
+            <td><input data-mapping="powers.1.name" /></td>
+            <td><input data-mapping="powers.1.description" /></td>
+        </tr>
+    </table>
 
 You don't have to use object initializers to create your view model. This works just as well:
 
@@ -93,32 +110,32 @@ If you want a property that is computed from another property, use the `KO.liste
     
     KO.bind(model);
     
-    KO.listen(function () {
+    KO.listen('level', function () {
         model.strength = model.level / 2;
-    }, 'level');
+    });
 
-The first argument to `KO.listen` should be a callback function, while the second should be the name of a property to listen for changes on. In the example above, whenever the `level` property changes the callback will be executed and the `strength` property will be updated.
+The first argument to `KO.listen` is the name of a property to listen for changes on and the second argument is a callback function. In the example above, whenever the `level` property changes the callback will be executed and the `strength` property will be updated.
 
 You can tell `KO.listen` to listen on any number of properties like so:
 
-    KO.listen(function () {
+    KO.listen(['level', 'beardLength'], function () {
         model.strength = (model.level / 2) + model.beardLength;
-    }, ['level', 'beardLength']);
+    });
 
 This way, any time `level` or `beardLength` changes the callback will be executed and `strength` will be updated.
 
 The callback function receives the event object as the argument, the details of which contain the name of the property that changed, the new value and the old value:
 
-    KO.listen(function (event) {
+    KO.listen(['skills.programming.ranks', 'skills.alligatorWrestling.ranks', 'skills.underwaterBasketWeaving.ranks'], function (event) {
         alert(event.detail.mapping + ' was ' + event.detail.oldValue + ' but now is ' + event.detail.newValue);
-    }, ['skills.programming.ranks', 'skills.alligatorWrestling.ranks', 'skills.underwaterBasketWeaving.ranks']);
+    });
 
 You can also tell `KO.listen` to listen for changes on any property that matches a regular expression. In this case, the callback function also receives an array containing the matched results as the second argument.
 
-    KO.listen(function (event, match) {
+    KO.listen(/skills\.(.*)\.ranks/, function (event, match) {
         var skill = match[1];
         model.skills[skill].skillMod = model.skills[skill].skillMod - event.detail.oldValue + event.detail.newValue;
-    }, /skills\.(.*)\.ranks/);
+    });
 
 ###Defining your own getters and setters
 
