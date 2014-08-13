@@ -26,7 +26,11 @@ var KO = (function () {
             return setProperty(obj[props[0]], props.slice(1, props.length), newValue);
         }
 
-        if (!isNaN(newValue)) {
+        if (typeof newValue !== 'boolean') {
+            newValue = newValue.trim();
+        }
+
+        if (/^\d+$/.test(newValue)) {
             obj[props[0]] = parseInt(newValue);
 
             return;
