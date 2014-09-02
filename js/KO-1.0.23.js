@@ -191,6 +191,53 @@ var KO = (function () {
         eventListenersAdded = true;
     }
 
+    module.validate = function (mappings, callback) {
+        if (mappings instanceof RegExp) {
+            window.addEventListener('change', function (event) {
+                var mapping = event.target.dataset.mapping,
+                    match,
+                    props;
+
+                if (mapping === undefined) {
+                    return;
+                }
+
+                match = mapping.match(mappings);
+
+                if (match === null || callback(event, match)) {
+                    return;
+                }
+
+                event.stopImmediatePropagation();
+
+                props = mapping.split('.');
+
+                setElementValue(event.target, getProperty(module.model, props));
+            });
+
+            return;
+        }
+
+        window.addEventListener('change', function (event) {
+            var mapping = event.target.dataset.mapping,
+                props;
+
+            if (mapping === undefined || mappings.indexOf(mapping) === -1) {
+                return;
+            }
+
+            if (callback(event)) {
+                return;
+            }
+
+            event.stopImmediatePropagation();
+
+            props = mapping.split('.');
+
+            setElementValue(event.target, getProperty(module.model, props));
+        });
+    };
+
     module.bind = function (model) {
         module.model = model;
 
