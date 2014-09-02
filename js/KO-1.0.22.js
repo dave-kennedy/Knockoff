@@ -42,6 +42,7 @@ var KO = (function () {
     function getElementValue(el) {
         switch (el.type) {
             case 'text':
+            case 'textarea':
             case 'select-one':
                 return el.value;
             case 'checkbox':
@@ -54,6 +55,7 @@ var KO = (function () {
     function setElementValue(el, newValue) {
         switch (el.type) {
             case 'text':
+            case 'textarea':
             case 'select-one':
                 el.value = newValue === undefined ? '' : newValue;
                 break;
