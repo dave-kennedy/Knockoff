@@ -30,7 +30,7 @@ var KO = (function () {
             newValue = newValue.trim();
         }
 
-        if (/^\d+$/.test(newValue)) {
+        if (/^\+?\-?\d+$/.test(newValue)) {
             obj[props[0]] = parseInt(newValue);
 
             return;
