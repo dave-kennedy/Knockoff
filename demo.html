@@ -51,7 +51,7 @@
     </p>
 </body>
 
-<script src="js/KO-1.0.24.js"></script>
+<script src="js/KO-1.0.26.js"></script>
 <script>
     // ECMAScript 5 strict mode
     'use strict';
@@ -94,5 +94,9 @@
         if (person.undead) {
             person.strength--;
         }
+    });
+
+    KO.validate('level', function (value) {
+        return !isNaN(value);
     });
 </script>

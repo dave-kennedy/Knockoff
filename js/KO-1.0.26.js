@@ -26,7 +26,7 @@ var KO = (function () {
             return setProperty(obj[props[0]], props.slice(1, props.length), newValue);
         }
 
-        if (typeof newValue !== 'boolean') {
+        if (typeof newValue === 'string') {
             newValue = newValue.trim();
         }
 
@@ -79,15 +79,10 @@ var KO = (function () {
         }
 
         Object.keys(obj).forEach(function (key) {
-            var descriptor = Object.getOwnPropertyDescriptor(obj, key),
-                currentValue = obj[key];
+            var currentValue = obj[key];
 
             function modelPropertyGetter() {
                 return currentValue;
-            }
-
-            function modelPropertyGetterOverride() {
-                return descriptor.get();
             }
 
             function modelPropertySetter(newValue) {
@@ -108,40 +103,70 @@ var KO = (function () {
                 }
             }
 
-            function modelPropertySetterOverride(newValue) {
-                descriptor.set(newValue);
+            defineGetter(obj, key, modelPropertyGetter);
 
-                modelPropertySetter(newValue);
-            }
-
-            Object.defineProperty(obj, key, {
-                get: (function () {
-                    if (descriptor.get === undefined) {
-                        return modelPropertyGetter;
-                    }
-
-                    if (descriptor.get.name !== 'modelPropertyGetter' && descriptor.get.name !== 'modelPropertyGetterOverride') {
-                        return modelPropertyGetterOverride;
-                    }
-
-                    return descriptor.get;
-                }()),
-                set: (function () {
-                    if (descriptor.set === undefined) {
-                        return modelPropertySetter;
-                    }
-
-                    if (descriptor.set.name !== 'modelPropertySetter' && descriptor.set.name !== 'modelPropertySetterOverride') {
-                        return modelPropertySetterOverride;
-                    }
-
-                    return descriptor.set;
-                }())
-            });
+            defineSetter(obj, key, modelPropertySetter);
 
             if (obj[key] instanceof Object) {
                 addGettersSetters(obj[key], prefix + key);
             }
+        });
+    }
+
+    function defineGetter(obj, key, getter) {
+        var descriptor = Object.getOwnPropertyDescriptor(obj, key);
+
+        Object.defineProperty(obj, key, {
+            get: (function () {
+                if (descriptor.get === undefined) {
+                    return getter;
+                }
+
+                return descriptor.get;
+            }())
+        });
+    }
+
+    function defineSetter(obj, key, setter) {
+        var descriptor = Object.getOwnPropertyDescriptor(obj, key);
+
+        function modelPropertySetterOverride(newValue) {
+            descriptor.set(newValue);
+
+            setter(newValue);
+        }
+
+        function modelPropertyValidatorOverride(newValue) {
+            if (setter(newValue) === false) {
+                updateView();
+
+                return;
+            }
+
+            descriptor.set(newValue);
+        }
+
+        Object.defineProperty(obj, key, {
+            set: (function () {
+                if (descriptor.set === undefined) {
+                    return setter;
+                }
+
+                if (setter.name === 'modelPropertySetter'
+                    && descriptor.set.name !== 'modelPropertySetter'
+                    && descriptor.set.name !== 'modelPropertySetterOverride'
+                    && descriptor.set.name !== 'modelPropertyValidatorOverride') {
+                    return modelPropertySetterOverride;
+                }
+
+                if (setter.name === 'modelPropertyValidator'
+                    && (descriptor.set.name === 'modelPropertySetter'
+                        || descriptor.set.name === 'modelPropertySetterOverride')) {
+                    return modelPropertyValidatorOverride;
+                }
+
+                return descriptor.set;
+            }())
         });
     }
 
@@ -191,53 +216,6 @@ var KO = (function () {
         eventListenersAdded = true;
     }
 
-    module.validate = function (mappings, callback) {
-        if (mappings instanceof RegExp) {
-            window.addEventListener('change', function (event) {
-                var mapping = event.target.dataset.mapping,
-                    match,
-                    props;
-
-                if (mapping === undefined) {
-                    return;
-                }
-
-                match = mapping.match(mappings);
-
-                if (match === null || callback(event, match)) {
-                    return;
-                }
-
-                event.stopImmediatePropagation();
-
-                props = mapping.split('.');
-
-                setElementValue(event.target, getProperty(module.model, props));
-            });
-
-            return;
-        }
-
-        window.addEventListener('change', function (event) {
-            var mapping = event.target.dataset.mapping,
-                props;
-
-            if (mapping === undefined || mappings.indexOf(mapping) === -1) {
-                return;
-            }
-
-            if (callback(event)) {
-                return;
-            }
-
-            event.stopImmediatePropagation();
-
-            props = mapping.split('.');
-
-            setElementValue(event.target, getProperty(module.model, props));
-        });
-    };
-
     module.bind = function (model) {
         module.model = model;
 
@@ -266,6 +244,20 @@ var KO = (function () {
                 callback(event);
             }
         });
+    };
+
+    module.validate = function (mappings, callback) {
+        var props = mappings.split('.');
+
+        function modelPropertyValidator(newValue) {
+            return callback(newValue);
+        }
+
+        if (props.length === 1) {
+            defineSetter(module.model, mappings, modelPropertyValidator);
+        } else {
+            defineSetter(getProperty(module.model, props.slice(0, props.length - 1)), props.slice(props.length), modelPropertyValidator);
+        }
     };
 
     return module;
