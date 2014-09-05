@@ -8,7 +8,9 @@
 <body>
     <h1>Knockoff Demo</h1>
 
-    <h2>Character Sheet for <span data-mapping="name"></span></h2>
+    <h2>
+        <span id="title">Character Sheet for</span> <span data-mapping="name"></span>
+    </h2>
     <p>
         <label>Name: <input data-mapping="name" type="text"></label>
     </p>
@@ -87,6 +89,14 @@
     });
 
     KO.bind(person);
+
+    KO.listen('name', function (event) {
+        if (event.detail.newValue !== '') {
+            document.getElementById('title').textContent = 'Character Sheet for';
+        } else {
+            document.getElementById('title').textContent = 'Character Sheet';
+        }
+    });
 
     KO.listen(['level', 'undead'], function () {
         person.strength = person.level / 2;
