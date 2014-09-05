@@ -9,48 +9,73 @@
     <h1>Knockoff Demo</h1>
 
     <h2>
-        <span id="title">Character Sheet for</span> <span data-mapping="name"></span>
+        Character Sheet for <span data-mapping="name"></span>
     </h2>
     <p>
-        <label>Name: <input data-mapping="name" type="text"></label>
+        Name: <input data-mapping="name" type="text">
     </p>
     <p>
-        <label>Level: <input data-mapping="level" type="text"></label>
+        Level: <input data-mapping="level" type="text">
     </p>
     <p>
-        <label>
-            Race:
-            <select data-mapping="race">
-                <option value="">Select one...</option>
-                <option value="Human">Human</option>
-                <option value="Klingon">Klingon</option>
-                <option value="Vulcan">Vulcan</option>
-            </select>
-        </label>
+       <input data-mapping="undead" type="checkbox" value="true"> Undead
     </p>
     <p>
-        <label>Strength: <input data-mapping="strength" type="text"></label>
+        Race:
+        <select data-mapping="race">
+            <option value="">Select one...</option>
+            <option value="Human">Human</option>
+            <option value="Klingon">Klingon</option>
+            <option value="Vulcan">Vulcan</option>
+        </select>
     </p>
     <p>
-        <label><input data-mapping="undead" type="checkbox" value="true"> Undead</label>
-    </p>
-
-    <h2>Wisdom</h2>
-    <p>
-        <label>Score: <input data-mapping="wisdom.score" type="text"></label>
-    </p>
-    <p>
-        <label>Modifier: <input data-mapping="wisdom.modifier" type="text"></label>
+        Description:<br>
+        <textarea data-mapping="description"></textarea>
     </p>
 
     <h2>Skills</h2>
-    <h3>Programming</h3>
-    <p>
-        <label>Day: <input data-mapping="skills.programming.day" type="text"><label>
-    </p>
-    <p>
-        <label>Night: <input data-mapping="skills.programming.night" type="text"><label>
-    </p>
+    <table>
+        <tr>
+            <th>Skill</th>
+            <th>Day</th>
+            <th>Night</th>
+        </tr>
+        <tr>
+            <td>Programming</td>
+            <td><input data-mapping="skills.programming.day" type="text"></td>
+            <td><input data-mapping="skills.programming.night" type="text"></td>
+        </tr>
+        <tr>
+            <td>Underwater Basket Weaving</td>
+            <td><input data-mapping="skills.underwaterBasketWeaving.day" type="text"></td>
+            <td><input data-mapping="skills.underwaterBasketWeaving.night" type="text"></td>
+        </tr>
+    </table>
+
+    <h2>Powers</h2>
+    <table>
+        <tr>
+            <th>Power</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><input data-mapping="powers.0.name"></td>
+            <td><input data-mapping="powers.0.description"></td>
+        </tr>
+        <tr>
+            <td><input data-mapping="powers.1.name"></td>
+            <td><input data-mapping="powers.1.description"></td>
+        </tr>
+    </table>
+
+    <h2>Attributes</h2>
+    <table id="attributes">
+        <tr>
+            <th>Attribute</th>
+            <th>Score</th>
+        </tr>
+    </table>
 </body>
 
 <script src="js/KO-1.0.27.js"></script>
@@ -58,59 +83,75 @@
     // ECMAScript 5 strict mode
     'use strict';
 
-    function Person(params) {
-        params = params || {};
-
-        this.name = params.name;
-        this.level = params.level;
-        this.race = params.race;
-        this.strength = params.strength;
-        this.undead = params.undead;
-        this.wisdom = params.wisdom;
-        this.skills = params.skills;
-    }
-
-    var person = new Person({
+    var model = {
         name: 'Dave',
         level: 10,
-        race: 'Human',
-        strength: 4,
         undead: true,
-        wisdom: {
-            score: 5,
-            modifier: -2
-        },
+        race: 'Human',
+        description: 'As a young boy, Dave created lego masterpieces and wrestled alligators. This is why he only has one arm...',
         skills: {
-            programming: {
-                day: 10,
-                night: 100
-            }
+            programming: { day: 10, night: 20 },
+            underwaterBasketWeaving: { day: 1, night: 2 }
+        },
+        powers: [
+            { name: 'Flurry of Keystrokes', description: 'You can type up to 80 word per minute.' },
+            { name: 'Telekenesis', description: 'You can move a pebble-sized object with your brain once per day.' }
+        ]
+    };
+
+    var _level = model.level;
+
+    Object.defineProperty(model, 'level', {
+        get: function () {
+            return _level;
+        },
+        set: function (value) {
+            console.log('level set to ' + value);
+            _level = value;
         }
     });
 
-    KO.bind(person);
+    KO.bind(model);
 
-    KO.listen('name', function (event) {
-        if (event.detail.newValue !== '') {
-            document.getElementById('title').textContent = 'Character Sheet for';
-        } else {
-            document.getElementById('title').textContent = 'Character Sheet';
-        }
+    model.attributes = {
+        strength: 4,
+        wisdom: 6,
+        charisma: 20
+    };
+
+    document.getElementById('attributes').insertRow().innerHTML = '<tr><td>Strength</td><td><input data-mapping="attributes.strength"></td></tr>';
+    document.getElementById('attributes').insertRow().innerHTML = '<tr><td>Wisdom</td><td><input data-mapping="attributes.wisdom"></td></tr>';
+    document.getElementById('attributes').insertRow().innerHTML = '<tr><td>Charisma</td><td><input data-mapping="attributes.charisma"></td></tr>';
+
+    KO.bind(model);
+
+    KO.listen('name', function () {
+        console.log('name is now ' + model.name);
     });
 
     KO.listen(['level', 'undead'], function () {
-        person.strength = person.level / 2;
+        model.attributes.strength = model.level / 2;
 
-        if (person.undead) {
-            person.strength--;
+        if (model.undead) {
+            model.attributes.strength--;
         }
+    });
+
+    KO.listen('race', function (event) {
+        console.log(event.detail.mapping + ' was ' + event.detail.oldValue + ' but now is ' + event.detail.newValue);
+    });
+
+    KO.listen(/skills\.(.*)\.day/, function (event, match) {
+        var skill = match[1];
+
+        model.skills[skill].night = model.skills[skill].day * 2;
     });
 
     KO.validate('level', function (value) {
         return value !== '' && !isNaN(value);
     });
 
-    KO.validate(['skills.programming.day', 'skills.programming.night'], function (value) {
+    KO.validate(['attributes.strength', 'attributes.wisdom', 'attributes.charisma'], function (value) {
         return value >= 0 && value <= 100;
     });
 </script>

@@ -18,83 +18,118 @@ Your markup would then look something like this:
         Level: <input data-mapping="level" type="text">
     </p>
 
-When you change the value of an element that's bound to a property of your view model, that property will be updated accordingly. This is true the other way around too - when you change the value of a property that's bound to an element in your view, that element will be updated as well.
+When you change the value of an element that's bound to a property of your view model, that property will be updated accordingly. This is true the other way around too - when you change the value of a property that's bound to an element in your view, that element will be updated too.
 
-You can have lots of elements that are bound to a single property of your view model. Just make sure you specify the property to bind to in the `data-mapping` attribute:
+You don't have to use object initializers to create your view model. This works just as well:
+
+    function Person(name, level) {
+        this.name = name;
+        this.level = level;
+    }
+    
+    var model = new Person('Dave', 10);
+    
+    KO.bind(model);
+
+You can bind several elements to a single property of your view model. Just specify the property to bind to in each element's `data-mapping` attribute:
+
+    <h2>
+        Character Sheet for <span data-mapping="name"></span>
+    </h2>
+    <p>
+        Name: <input data-mapping="name" type="text">
+    </p>
+
+Knockoff will work with any type of element in your view, including inputs, selects and textboxes:
+
+    var model = {
+        // ...
+        undead: true,
+        race: 'Human',
+        description: 'As a young boy, Dave created lego masterpieces and wrestled alligators. This is why he only has one arm...'
+    };
+
+The markup for this part of the model might be:
 
     <p>
-        Enter your name: <input data-mapping="name" type="text">
+        <input data-mapping="undead" type="checkbox"> Undead
     </p>
     <p>
-        Hi, <span data-mapping="name"></span>!
+        Race:
+        <select data-mapping="race">
+            <option value="">Select one...</option>
+            <option value="Human">Human</option>
+            <option value="Klingon">Klingon</option>
+            <option value="Vulcan">Vulcan</option>
+        </select>
+    </p>
+    <p>
+        Description:<br>
+        <textarea data-mapping="description"></textarea>
     </p>
 
 Knockoff plays nice with complex view models containing arrays and nested objects:
 
     var model = {
+        // ...
         skills: {
-            programming: {
-                day: 10,
-                night: 100
-            }
+            programming: { day: 10, night: 20 },
+            underwaterBasketWeaving: { day: 1, night: 2 }
         },
         powers: [
             { name: 'Flurry of Keystrokes', description: 'You can type up to 80 word per minute.' },
             { name: 'Telekenesis', description: 'You can move a pebble-sized object with your brain once per day.' }
         ]
     };
-    
-    KO.bind(model);
 
-Your markup in this case might look like this:
+Here's some possible markup for this part of the model:
 
-    <h3>Skills</h3>
-    <p>
-        Programming (Day): <input data-mapping="skills.programming.day" type="text">
-    </p>
-    <p>
-        Programming (Night): <input data-mapping="skills.programming.night" type="text">
-    </p>
+    <h2>Skills</h2>
+    <table>
+        <tr>
+            <th>Skill</th>
+            <th>Day</th>
+            <th>Night</th>
+        </tr>
+        <tr>
+            <td>Programming</td>
+            <td><input data-mapping="skills.programming.day" type="text"></td>
+            <td><input data-mapping="skills.programming.night" type="text"></td>
+        </tr>
+        <tr>
+            <td>Underwater Basket Weaving</td>
+            <td><input data-mapping="skills.underwaterBasketWeaving.day" type="text"></td>
+            <td><input data-mapping="skills.underwaterBasketWeaving.night" type="text"></td>
+        </tr>
+    </table>
     
-    <h3>Powers</h3>
+    <h2>Powers</h2>
     <table>
         <tr>
             <th>Power</th>
             <th>Description</th>
         </tr>
         <tr>
-            <td><input data-mapping="powers.0.name" /></td>
-            <td><input data-mapping="powers.0.description" /></td>
+            <td><input data-mapping="powers.0.name"></td>
+            <td><input data-mapping="powers.0.description"></td>
         </tr>
         <tr>
-            <td><input data-mapping="powers.1.name" /></td>
-            <td><input data-mapping="powers.1.description" /></td>
+            <td><input data-mapping="powers.1.name"></td>
+            <td><input data-mapping="powers.1.description"></td>
         </tr>
     </table>
 
-You don't have to use object initializers to create your view model. This works just as well:
-
-    function Person(name, level, race) {
-        this.name = name;
-        this.level = level;
-        this.race = race;
-    }
-    
-    var model = new Person('Dave', 10, 'Vulcan');
-    
-    KO.bind(model);
-
 If your view model and/or view changes drastically (as in adding properties to your view model or adding elements to your view), you can just call `KO.bind` again without breaking any functionality:
 
-    var model = {
-        name: 'Dave'
+    model.attributes = {
+        strength: 4,
+        wisdom: 6,
+        charisma: 20
     };
     
-    KO.bind(model);
-    
-    model.level = 10;
-    
-    document.getElementById('whatever').innerHTML = '<input data-mapping="level" type="text">';
+    document.getElementById('attributes').insertRow().innerHTML = '<tr><td>Strength</td><td><input data-mapping="attributes.strength"></td></tr>';
+    document.getElementById('attributes').insertRow().innerHTML = '<tr><td>Wisdom</td><td><input data-mapping="attributes.wisdom"></td></tr>';
+    document.getElementById('attributes').insertRow().innerHTML = '<tr><td>Charisma</td><td><input data-mapping="attributes.charisma"></td></tr>';
     
     KO.bind(model);
 
@@ -102,39 +137,52 @@ If your view model and/or view changes drastically (as in adding properties to y
 
 If you want a property that is computed from another property, use the `KO.listen` function:
 
-    var model = {
-        name: 'Dave',
-        level: 10,
-        strength: 5
-    };
-    
-    KO.bind(model);
-    
-    KO.listen('level', function () {
-        model.strength = model.level / 2;
+    KO.listen('name', function () {
+        alert('Hi, ' + model.name + '!');
     });
 
-The first argument to `KO.listen` is the name of a property to listen for changes on and the second argument is a callback function. In the example above, whenever the `level` property changes the callback will be executed and the `strength` property will be updated.
+The first argument to `KO.listen` is the name of a property to listen for changes on and the second argument is a callback function. In the example above, whenever the `name` property changes the callback will be executed and the user will be alerted.
 
 You can tell `KO.listen` to listen on any number of properties like so:
 
-    KO.listen(['level', 'beardLength'], function () {
-        model.strength = (model.level / 2) + model.beardLength;
+    KO.listen(['level', 'undead'], function () {
+        model.attributes.strength = model.level / 2;
+        
+        if (model.undead) {
+            model.attributes.strength--;
+        }
     });
 
-This way, any time `level` or `beardLength` changes the callback will be executed and `strength` will be updated.
+This way, any time `level` or `undead` changes the callback will be executed and `strength` will be updated.
 
-The callback function receives the event object as the argument, the details of which contain the name of the property that changed, the new value and the old value:
+The callback function receives an event as the argument, the details of which contain the name of the property that changed, the new value and the old value:
 
-    KO.listen(['skills.programming.ranks', 'skills.alligatorWrestling.ranks', 'skills.underwaterBasketWeaving.ranks'], function (event) {
+    KO.listen('race', function (event) {
         alert(event.detail.mapping + ' was ' + event.detail.oldValue + ' but now is ' + event.detail.newValue);
     });
 
 You can also tell `KO.listen` to listen for changes on any property that matches a regular expression. In this case, the callback function also receives an array containing the matched results as the second argument.
 
-    KO.listen(/skills\.(.*)\.ranks/, function (event, match) {
+    KO.listen(/skills\.(.*)\.day/, function (event, match) {
         var skill = match[1];
-        model.skills[skill].skillMod = model.skills[skill].skillMod - event.detail.oldValue + event.detail.newValue;
+        
+        model.skills[skill].night = model.skills[skill].day * 2;
+    });
+
+###Validation
+
+Use the `KO.validate` function to add validation rules to properties:
+
+    KO.validate('level', function (value) {
+        return value !== '' && !isNaN(value);
+    });
+
+The first argument to `KO.validate` is the name of a property to validate and the second argument is a callback function. The callback should return true if the value passes validation and false otherwise. This rule forces `level` to be numeric.
+
+You can add the same validation rule to several properties like this:
+
+    KO.validate(['attributes.strength', 'attributes.wisdom', 'attributes.charisma'], function (value) {
+        return value >= 0 && value <= 100;
     });
 
 ###Defining your own getters and setters
@@ -179,4 +227,4 @@ But this will totally break the model binding:
         }
     });
 
-You can always use `KO.listen` instead of defining your own setter. There isn't any similar workaround for defining your own getter at the moment. So if you absolutely have to, just call `KO.bind` last.
+So don't do it.
