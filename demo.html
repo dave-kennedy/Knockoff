@@ -51,7 +51,7 @@
     </p>
 </body>
 
-<script src="js/KO-1.0.26.js"></script>
+<script src="js/KO-1.0.27.js"></script>
 <script>
     // ECMAScript 5 strict mode
     'use strict';
@@ -97,6 +97,10 @@
     });
 
     KO.validate('level', function (value) {
-        return !isNaN(value);
+        return value !== '' && !isNaN(value);
+    });
+
+    KO.validate(['skills.programming.day', 'skills.programming.night'], function (value) {
+        return value >= 0 && value <= 100;
     });
 </script>

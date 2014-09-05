@@ -216,6 +216,20 @@ var KO = (function () {
         eventListenersAdded = true;
     }
 
+    function addValidator(mapping, callback) {
+        var props = mapping.split('.');
+
+        function modelPropertyValidator(newValue) {
+            return callback(newValue);
+        }
+
+        if (props.length === 1) {
+            defineSetter(module.model, mapping, modelPropertyValidator);
+        } else {
+            defineSetter(getProperty(module.model, props.slice(0, props.length - 1)), props.slice(-1), modelPropertyValidator);
+        }
+    };
+
     module.bind = function (model) {
         module.model = model;
 
@@ -247,17 +261,15 @@ var KO = (function () {
     };
 
     module.validate = function (mappings, callback) {
-        var props = mappings.split('.');
+        if (mappings instanceof Array) {
+            mappings.forEach(function (mapping) {
+                addValidator(mapping, callback);
+            });
 
-        function modelPropertyValidator(newValue) {
-            return callback(newValue);
+            return;
         }
 
-        if (props.length === 1) {
-            defineSetter(module.model, mappings, modelPropertyValidator);
-        } else {
-            defineSetter(getProperty(module.model, props.slice(0, props.length - 1)), props.slice(props.length), modelPropertyValidator);
-        }
+        addValidator(mappings, callback);
     };
 
     return module;
