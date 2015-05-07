@@ -136,16 +136,6 @@ var KO = (function () {
             setter(newValue);
         }
 
-        function modelPropertyValidatorOverride(newValue) {
-            if (setter(newValue) === false) {
-                updateView();
-
-                return;
-            }
-
-            descriptor.set(newValue);
-        }
-
         Object.defineProperty(obj, key, {
             set: (function () {
                 if (descriptor.set === undefined) {
@@ -154,15 +144,8 @@ var KO = (function () {
 
                 if (setter.name === 'modelPropertySetter'
                     && descriptor.set.name !== 'modelPropertySetter'
-                    && descriptor.set.name !== 'modelPropertySetterOverride'
-                    && descriptor.set.name !== 'modelPropertyValidatorOverride') {
+                    && descriptor.set.name !== 'modelPropertySetterOverride') {
                     return modelPropertySetterOverride;
-                }
-
-                if (setter.name === 'modelPropertyValidator'
-                    && (descriptor.set.name === 'modelPropertySetter'
-                        || descriptor.set.name === 'modelPropertySetterOverride')) {
-                    return modelPropertyValidatorOverride;
                 }
 
                 return descriptor.set;
@@ -173,7 +156,6 @@ var KO = (function () {
     function updateView(prefix) {
         var elements,
             i,
-            mapping,
             props;
 
         if (prefix === undefined) {
@@ -183,9 +165,7 @@ var KO = (function () {
         }
 
         for (i = 0; i < elements.length; i++) {
-            mapping = elements[i].dataset.mapping;
-
-            props = mapping.split('.');
+            props = elements[i].dataset.mapping.split('.');
 
             setElementValue(elements[i], getProperty(module.model, props));
         }
@@ -215,20 +195,6 @@ var KO = (function () {
 
         eventListenersAdded = true;
     }
-
-    function addValidator(mapping, callback) {
-        var props = mapping.split('.');
-
-        function modelPropertyValidator(newValue) {
-            return callback(newValue);
-        }
-
-        if (props.length === 1) {
-            defineSetter(module.model, mapping, modelPropertyValidator);
-        } else {
-            defineSetter(getProperty(module.model, props.slice(0, props.length - 1)), props.slice(-1), modelPropertyValidator);
-        }
-    };
 
     module.bind = function (model) {
         module.model = model;
@@ -261,15 +227,30 @@ var KO = (function () {
     };
 
     module.validate = function (mappings, callback) {
-        if (mappings instanceof Array) {
-            mappings.forEach(function (mapping) {
-                addValidator(mapping, callback);
+        if (mappings instanceof RegExp) {
+            window.addEventListener('modelPropertySet', function (event) {
+                var match = event.detail.mapping.match(mappings),
+                    props;
+
+                if (match !== null && !callback(event, match)) {
+                    props = event.detail.mapping.split('.');
+
+                    setProperty(module.model, props, event.detail.oldValue);
+                }
             });
 
             return;
         }
 
-        addValidator(mappings, callback);
+        window.addEventListener('modelPropertySet', function (event) {
+            var props;
+
+            if (mappings.indexOf(event.detail.mapping) !== -1 && !callback(event)) {
+                props = event.detail.mapping.split('.');
+
+                setProperty(module.model, props, event.detail.oldValue);
+            }
+        });
     };
 
     return module;

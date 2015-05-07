@@ -78,7 +78,7 @@
     </table>
 </body>
 
-<script src="js/KO-1.0.27.js"></script>
+<script src="js/KO-1.0.28.js"></script>
 <script>
     // ECMAScript 5 strict mode
     'use strict';
@@ -99,18 +99,6 @@
         ]
     };
 
-    var _level = model.level;
-
-    Object.defineProperty(model, 'level', {
-        get: function () {
-            return _level;
-        },
-        set: function (value) {
-            console.log('level set to ' + value);
-            _level = value;
-        }
-    });
-
     KO.bind(model);
 
     model.attributes = {
@@ -126,7 +114,7 @@
     KO.bind(model);
 
     KO.listen('name', function () {
-        console.log('name is now ' + model.name);
+        alert('Hi, ' + model.name + '!');
     });
 
     KO.listen(['level', 'undead'], function () {
@@ -144,14 +132,22 @@
     KO.listen(/skills\.(.*)\.day/, function (event, match) {
         var skill = match[1];
 
-        model.skills[skill].night = model.skills[skill].day * 2;
+        model.skills[skill].night = event.detail.newValue * 2;
     });
 
-    KO.validate('level', function (value) {
-        return value !== '' && !isNaN(value);
+    KO.validate('level', function (event) {
+        return event.detail.newValue !== '' && !isNaN(event.detail.newValue);
     });
 
-    KO.validate(['attributes.strength', 'attributes.wisdom', 'attributes.charisma'], function (value) {
-        return value >= 0 && value <= 100;
+    KO.validate(['attributes.strength', 'attributes.wisdom', 'attributes.charisma'], function (event) {
+        return event.detail.newValue >= 0 && event.detail.newValue <= 100;
+    });
+
+    KO.validate(/powers\.\d\.name/, function (event, match) {
+        if (event.detail.newValue === 'Ninja Flipping') {
+            return false;
+        }
+
+        return true;
     });
 </script>
