@@ -227,7 +227,7 @@ KO.validate(/powers\.\d\.name/, function (event, match) {
 });
 ```
 
-###Defining your own getters and setters
+###Getters and setters
 
 Knockoff relies on ECMAScript 5's Object.defineProperty to define getters and setters on the properties of your view model. If you also use Object.defineProperty to define getters and setters on properties, make sure you call `KO.bind` _last_ (after defining your own getters and setters). This is because the getters and setters defined by Knockoff will call any existing getters and setters instead of overwriting them. For example, this works:
 
@@ -274,3 +274,7 @@ Object.defineProperty(model, 'name', {
 ```
 
 So don't do it.
+
+###Demo
+
+Right [here](http://dave-kennedy.github.io/Knockoff).
