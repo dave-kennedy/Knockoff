@@ -153,35 +153,21 @@ KO.bind(model);
 
 ### Computed properties
 
-If you want a property that is computed from another property, use the `KO.listen` function:
+If you want a property that is computed from another property, use the `KO.listen` function. The first argument is the name of a property to listen for changes on and the second argument is a callback function:
 
 ```JavaScript
-KO.listen('name', function () {
-    alert('Hi, ' + model.name + '!');
-});
-```
-
-The first argument to `KO.listen` is the name of a property to listen for changes on and the second argument is a callback function. In the example above, whenever the `name` property changes the callback will be executed and the user will be alerted.
-
-You can tell `KO.listen` to listen on any number of properties like so:
-
-```JavaScript
-KO.listen(['level', 'undead'], function () {
+KO.listen('level', function (event) {
     model.attributes.strength = model.level / 2;
-
-    if (model.undead) {
-        model.attributes.strength--;
-    }
 });
 ```
 
-This way, any time `level` or `undead` changes the callback will be executed and `strength` will be updated.
+The callback function receives an event as the argument, the details of which contain the name of the property that changed, the new value and the old value.
 
-The callback function receives an event as the argument, the details of which contain the name of the property that changed, the new value and the old value:
+You can tell `KO.listen` to listen for changes on multiple properties like so:
 
 ```JavaScript
-KO.listen('race', function (event) {
-    alert(event.detail.mapping + ' was ' + event.detail.oldValue + ' but now is ' + event.detail.newValue);
+KO.listen(['attributes.strength', 'attributes.wisdom', 'attributes.charisma'], function (event) {
+    model.totalAttributes = model.attributes.strength + model.attributes.wisdom + model.attributes.charisma;
 });
 ```
 
@@ -201,31 +187,13 @@ Use the `KO.validate` function to add validation rules to properties:
 
 ```JavaScript
 KO.validate('level', function (event) {
-    return event.detail.newValue !== '' && !isNaN(event.detail.newValue);
+    return event.detail.newValue > 0;
 });
 ```
 
-The first argument to `KO.validate` is the name of a property to validate and the second argument is a callback function. The callback should return true if it passes validation and false otherwise. This rule forces `level` to be numeric.
+The first argument to `KO.validate` is the name of a property to validate and the second argument is a callback function. The callback should return true if it passes validation and false otherwise. This rule forces `level` to be a positive integer.
 
-You can add the same validation rule to several properties like this:
-
-```JavaScript
-KO.validate(['attributes.strength', 'attributes.wisdom', 'attributes.charisma'], function (event) {
-    return event.detail.newValue >= 0 && event.detail.newValue <= 100;
-});
-```
-
-Regular expressions work here as well:
-
-```JavaScript
-KO.validate(/powers\.\d\.name/, function (event, match) {
-    if (event.detail.newValue === 'Ninja Flipping') {
-        return false;
-    }
-
-    return true;
-});
-```
+You can add the same validator to multiple properties by passing an array of property names as the first argument. Regular expressions work here as well.
 
 ### Getters and setters
 
@@ -274,6 +242,16 @@ Object.defineProperty(model, 'name', {
 ```
 
 So don't do it.
+
+### Too much recursion
+
+Be careful to avoid listening for changes on a property and setting it in the same call stack. For example, don't do this:
+
+```JavaScript
+KO.listen('name', function (event) {
+    name = name + ', formerly known as ' + event.detail.oldValue;
+});
+```
 
 ### Demo
 
