@@ -213,3 +213,7 @@ KO.listen('name', function (event) {
 
 Right [here](http://dave-kennedy.github.io/Knockoff).
 
+### Tests
+
+[Yup, got those too](http://dave-kennedy.github.io/Knockoff/tests.html).
+

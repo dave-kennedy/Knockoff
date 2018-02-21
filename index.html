@@ -1,309 +1,146 @@
 <!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Knockoff Demo</title>
+    </head>
+    <body>
+        <h1>Knockoff Demo</h1>
 
-<head>
-    <meta charset="utf-8">
-    <title>Knockoff Demo</title>
-</head>
+        <h2>
+            Character Sheet for <span data-mapping="name" id="nameSpan"></span>
+        </h2>
+        <p>
+            Name: <input data-mapping="name" id="nameInput" type="text">
+        </p>
+        <p>
+            Level: <input data-mapping="level" id="levelInput" type="text">
+        </p>
+        <p>
+           <input data-mapping="undead" id="undeadInput" type="checkbox"> Undead
+        </p>
+        <p>
+            Race:
+            <select data-mapping="race" id="raceSelect">
+                <option value="">Select one...</option>
+                <option value="Human">Human</option>
+                <option value="Klingon">Klingon</option>
+                <option value="Vulcan">Vulcan</option>
+            </select>
+        </p>
+        <p>
+            Description:<br>
+            <textarea data-mapping="description" id="descriptionTextarea"></textarea>
+        </p>
 
-<body>
-    <h1>Knockoff Demo</h1>
+        <h2>Skills</h2>
+        <table>
+            <tr>
+                <th>Skill</th>
+                <th>Day</th>
+                <th>Night</th>
+            </tr>
+            <tr>
+                <td>Programming</td>
+                <td><input data-mapping="skills.programming.day" id="skillsProgrammingDayInput" type="text"></td>
+                <td><input data-mapping="skills.programming.night" id="skillsProgrammingNightInput" type="text"></td>
+            </tr>
+            <tr>
+                <td>Underwater Basket Weaving</td>
+                <td><input data-mapping="skills.underwaterBasketWeaving.day" id="skillsUnderwaterBasketWeavingDayInput" type="text"></td>
+                <td><input data-mapping="skills.underwaterBasketWeaving.night" id="skillsUnderwaterBasketWeavingNightInput" type="text"></td>
+            </tr>
+        </table>
 
-    <h2>
-        Character Sheet for <span data-mapping="name" id="nameSpan"></span>
-    </h2>
-    <p>
-        Name: <input data-mapping="name" id="nameInput" type="text">
-    </p>
-    <p>
-        Level: <input data-mapping="level" id="levelInput" type="text">
-    </p>
-    <p>
-       <input data-mapping="undead" id="undeadInput" type="checkbox"> Undead
-    </p>
-    <p>
-        Race:
-        <select data-mapping="race" id="raceSelect">
-            <option value="">Select one...</option>
-            <option value="Human">Human</option>
-            <option value="Klingon">Klingon</option>
-            <option value="Vulcan">Vulcan</option>
-        </select>
-    </p>
-    <p>
-        Description:<br>
-        <textarea data-mapping="description" id="descriptionTextarea"></textarea>
-    </p>
+        <h2>Powers</h2>
+        <table>
+            <tr>
+                <th>Power</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><input data-mapping="powers.0.name" id="powers0NameInput"></td>
+                <td><input data-mapping="powers.0.description" id="powers0DescriptionInput"></td>
+            </tr>
+            <tr>
+                <td><input data-mapping="powers.1.name" id="powers1NameInput"></td>
+                <td><input data-mapping="powers.1.description" id="powers1DescriptionInput"></td>
+            </tr>
+        </table>
 
-    <h2>Skills</h2>
-    <table>
-        <tr>
-            <th>Skill</th>
-            <th>Day</th>
-            <th>Night</th>
-        </tr>
-        <tr>
-            <td>Programming</td>
-            <td><input data-mapping="skills.programming.day" id="skillsProgrammingDayInput" type="text"></td>
-            <td><input data-mapping="skills.programming.night" id="skillsProgrammingNightInput" type="text"></td>
-        </tr>
-        <tr>
-            <td>Underwater Basket Weaving</td>
-            <td><input data-mapping="skills.underwaterBasketWeaving.day" id="skillsUnderwaterBasketWeavingDayInput" type="text"></td>
-            <td><input data-mapping="skills.underwaterBasketWeaving.night" id="skillsUnderwaterBasketWeavingNightInput" type="text"></td>
-        </tr>
-    </table>
+        <h2>Attributes</h2>
+        <table id="attributesTable">
+            <tr>
+                <th>Attribute</th>
+                <th>Score</th>
+            </tr>
+        </table>
 
-    <h2>Powers</h2>
-    <table>
-        <tr>
-            <th>Power</th>
-            <th>Description</th>
-        </tr>
-        <tr>
-            <td><input data-mapping="powers.0.name" id="powers0NameInput"></td>
-            <td><input data-mapping="powers.0.description" id="powers0DescriptionInput"></td>
-        </tr>
-        <tr>
-            <td><input data-mapping="powers.1.name" id="powers1NameInput"></td>
-            <td><input data-mapping="powers.1.description" id="powers1DescriptionInput"></td>
-        </tr>
-    </table>
+        <script src="js/KO-1.0.29.js"></script>
+        <script>
+            // ECMAScript 5 strict mode
+            'use strict';
 
-    <h2>Attributes</h2>
-    <table id="attributesTable">
-        <tr>
-            <th>Attribute</th>
-            <th>Score</th>
-        </tr>
-    </table>
+            var model = {
+                name: 'Dave',
+                level: 10,
+                undead: true,
+                race: 'Human',
+                description: 'As a young boy, Dave created lego masterpieces and wrestled alligators. This is why he only has one arm...',
+                skills: {
+                    programming: { day: 10, night: 20 },
+                    underwaterBasketWeaving: { day: 1, night: 2 }
+                },
+                powers: [
+                    { name: 'Flurry of Keystrokes', description: 'You can type up to 80 word per minute.' },
+                    { name: 'Telekenesis', description: 'You can move a pebble-sized object with your brain once per day.' }
+                ]
+            };
 
-    <p>
-        <input id="test-button" type="button" value="Run tests">
-    </p>
-</body>
+            KO.bind(model);
 
-<script src="js/KO-1.0.29.js"></script>
-<script>
-    // ECMAScript 5 strict mode
-    'use strict';
+            model.attributes = {
+                strength: 4,
+                wisdom: 6,
+                charisma: 20
+            };
 
-    var model = {
-        name: 'Dave',
-        level: 10,
-        undead: true,
-        race: 'Human',
-        description: 'As a young boy, Dave created lego masterpieces and wrestled alligators. This is why he only has one arm...',
-        skills: {
-            programming: { day: 10, night: 20 },
-            underwaterBasketWeaving: { day: 1, night: 2 }
-        },
-        powers: [
-            { name: 'Flurry of Keystrokes', description: 'You can type up to 80 word per minute.' },
-            { name: 'Telekenesis', description: 'You can move a pebble-sized object with your brain once per day.' }
-        ]
-    };
+            model.totalAttributes = 30;
 
-    KO.bind(model);
+            document.getElementById('attributesTable').insertRow().innerHTML = '<tr><td>Strength</td><td><input data-mapping="attributes.strength" id="attributesStrengthInput"></td></tr>';
+            document.getElementById('attributesTable').insertRow().innerHTML = '<tr><td>Wisdom</td><td><input data-mapping="attributes.wisdom" id="attributesWisdomInput"></td></tr>';
+            document.getElementById('attributesTable').insertRow().innerHTML = '<tr><td>Charisma</td><td><input data-mapping="attributes.charisma" id="attributesCharismaInput"></td></tr>';
 
-    model.attributes = {
-        strength: 4,
-        wisdom: 6,
-        charisma: 20
-    };
+            KO.bind(model);
 
-    model.totalAttributes = 30;
+            KO.listen('level', function (event) {
+                model.attributes.strength = model.level / 2;
+            });
 
-    document.getElementById('attributesTable').insertRow().innerHTML = '<tr><td>Strength</td><td><input data-mapping="attributes.strength" id="attributesStrengthInput"></td></tr>';
-    document.getElementById('attributesTable').insertRow().innerHTML = '<tr><td>Wisdom</td><td><input data-mapping="attributes.wisdom" id="attributesWisdomInput"></td></tr>';
-    document.getElementById('attributesTable').insertRow().innerHTML = '<tr><td>Charisma</td><td><input data-mapping="attributes.charisma" id="attributesCharismaInput"></td></tr>';
+            KO.listen(['attributes.strength', 'attributes.wisdom', 'attributes.charisma'], function (event) {
+                model.totalAttributes = model.attributes.strength + model.attributes.wisdom + model.attributes.charisma;
+            });
 
-    KO.bind(model);
+            KO.listen(/skills\.(.*)\.day/, function (event, match) {
+                var skill = match[1];
 
-    KO.listen('level', function (event) {
-        model.attributes.strength = model.level / 2;
-    });
+                model.skills[skill].night = event.detail.newValue * 2;
+            });
 
-    KO.listen(['attributes.strength', 'attributes.wisdom', 'attributes.charisma'], function (event) {
-        model.totalAttributes = model.attributes.strength + model.attributes.wisdom + model.attributes.charisma;
-    });
+            KO.validate('level', function (event) {
+                return event.detail.newValue > 0;
+            });
 
-    KO.listen(/skills\.(.*)\.day/, function (event, match) {
-        var skill = match[1];
+            KO.validate(['attributes.strength', 'attributes.wisdom', 'attributes.charisma'], function (event) {
+                return model.totalAttributes + event.detail.newValue < 100;
+            });
 
-        model.skills[skill].night = event.detail.newValue * 2;
-    });
+            KO.validate(/powers\.(\d+)\.name/, function (event, match) {
+                var power = parseInt(match[1]);
 
-    KO.validate('level', function (event) {
-        return event.detail.newValue > 0;
-    });
-
-    KO.validate(['attributes.strength', 'attributes.wisdom', 'attributes.charisma'], function (event) {
-        return model.totalAttributes + event.detail.newValue < 100;
-    });
-
-    KO.validate(/powers\.(\d+)\.name/, function (event, match) {
-        var power = parseInt(match[1]);
-
-        return !(power === 0 && event.detail.newValue === 'Ninja Flipping');
-    });
-
-    // Tests
-
-    function assertEqual(val1, val2) {
-        if (val1 !== val2) {
-            throw 'Expected ' + val2 + ' but was ' + val1;
-        }
-    }
-
-    function setElementValue(el, newValue) {
-        switch (el.type) {
-            case 'text':
-            case 'textarea':
-            case 'select-one':
-                el.value = newValue === undefined ? '' : newValue;
-                break;
-            case 'checkbox':
-                el.checked = newValue === undefined ? false : newValue;
-                break;
-            default:
-                el.innerHTML = newValue === undefined ? '' : newValue;
-        }
-
-        el.dispatchEvent(new Event('change', {
-            bubbles: true
-        }));
-    }
-
-    function testBind() {
-        assertEqual(document.getElementById('nameSpan').innerHTML, model.name);
-        assertEqual(document.getElementById('nameInput').value, model.name);
-        assertEqual(document.getElementById('levelInput').value, model.level.toString());
-        assertEqual(document.getElementById('undeadInput').checked, model.undead);
-        assertEqual(document.getElementById('raceSelect').value, model.race);
-        assertEqual(document.getElementById('descriptionTextarea').value, model.description);
-        assertEqual(document.getElementById('skillsProgrammingDayInput').value, model.skills.programming.day.toString());
-        assertEqual(document.getElementById('skillsProgrammingNightInput').value, model.skills.programming.night.toString());
-        assertEqual(document.getElementById('skillsUnderwaterBasketWeavingDayInput').value, model.skills.underwaterBasketWeaving.day.toString());
-        assertEqual(document.getElementById('skillsUnderwaterBasketWeavingNightInput').value, model.skills.underwaterBasketWeaving.night.toString());
-        assertEqual(document.getElementById('powers0NameInput').value, model.powers[0].name);
-        assertEqual(document.getElementById('powers0DescriptionInput').value, model.powers[0].description);
-        assertEqual(document.getElementById('powers1NameInput').value, model.powers[1].name);
-        assertEqual(document.getElementById('powers1DescriptionInput').value, model.powers[1].description);
-        assertEqual(document.getElementById('attributesStrengthInput').value, model.attributes.strength.toString());
-        assertEqual(document.getElementById('attributesWisdomInput').value, model.attributes.wisdom.toString());
-        assertEqual(document.getElementById('attributesCharismaInput').value, model.attributes.charisma.toString());
-    }
-
-    function testHtml() {
-        var nameSpan = document.getElementById('nameSpan');
-        setElementValue(nameSpan, 'Ruth');
-        assertEqual(nameSpan.innerHTML, model.name);
-
-        model.name = 'Sarah';
-        assertEqual(model.name, nameSpan.innerHTML);
-    }
-
-    function testTextInput() {
-        var nameInput = document.getElementById('nameInput');
-        setElementValue(nameInput, 'Steve');
-        assertEqual(nameInput.value, model.name);
-
-        model.name = 'Bob';
-        assertEqual(model.name, nameInput.value);
-    }
-
-    function testCheckbox() {
-        var undeadInput = document.getElementById('undeadInput');
-        setElementValue(undeadInput, false);
-        assertEqual(undeadInput.checked, model.undead);
-
-        model.undead = true;
-        assertEqual(model.undead, undeadInput.checked);
-    }
-
-    function testSelect() {
-        var raceSelect = document.getElementById('raceSelect');
-        setElementValue(raceSelect, 'Klingon');
-        assertEqual(raceSelect.value, model.race);
-
-        model.race = 'Vulcan';
-        assertEqual(model.race, raceSelect.value);
-    }
-
-    function testTextarea() {
-        var descriptionTextarea = document.getElementById('descriptionTextarea');
-        setElementValue(descriptionTextarea, 'I am a banana!');
-        assertEqual(descriptionTextarea.value, model.description);
-
-        model.description = 'Blah blah blah...';
-        assertEqual(model.description, descriptionTextarea.value);
-    }
-
-    function testNested() {
-        var skillsProgrammingDayInput = document.getElementById('skillsProgrammingDayInput');
-        setElementValue(skillsProgrammingDayInput, 12);
-        assertEqual(skillsProgrammingDayInput.value, model.skills.programming.day.toString());
-
-        model.skills.programming.day = 14;
-        assertEqual(model.skills.programming.day.toString(), skillsProgrammingDayInput.value);
-    }
-
-    function testArray() {
-        var powers0NameInput = document.getElementById('powers0NameInput');
-        setElementValue(powers0NameInput, 'Mental Domination');
-        assertEqual(powers0NameInput.value, model.powers[0].name);
-
-        var powers0DescriptionInput = document.getElementById('powers0DescriptionInput');
-        model.powers[0].description = 'Nobody can deny your impeccable logic.';
-        assertEqual(model.powers[0].description, powers0DescriptionInput.value);
-    }
-
-    function testListen() {
-        model.attributes.strength = 0;
-        model.level = 12;
-        assertEqual(model.attributes.strength, 6);
-
-        model.totalAttributes = 0;
-        model.attributes.strength = 6;
-        model.attributes.wisdom = 8;
-        model.attributes.charisma = 10;
-        assertEqual(model.totalAttributes, 24);
-
-        model.skills.programming.night = 0;
-        model.skills.programming.day = 12;
-        assertEqual(model.skills.programming.night, 24);
-    }
-
-    function testValidate() {
-        model.level = 10;
-        model.level = -1;
-        assertEqual(model.level, 10);
-
-        model.attributes.strength = 4;
-        model.attributes.wisdom = 6;
-        model.attributes.charisma = 20;
-        model.attributes.strength = 80;
-        assertEqual(model.attributes.strength, 4);
-
-        model.powers[0].name = 'Flurry of Keystrokes';
-        model.powers[0].name = 'Ninja Flipping';
-        assertEqual(model.powers[0].name, 'Flurry of Keystrokes');
-    }
-
-    function testAll() {
-        testBind();
-        testHtml();
-        testTextInput();
-        testCheckbox();
-        testSelect();
-        testTextarea();
-        testNested();
-        testArray();
-        testListen();
-        testValidate();
-        alert('All tests passed!');
-    }
-
-    document.getElementById('test-button').addEventListener('click', testAll);
-</script>
+                return !(power === 0 && event.detail.newValue === 'Ninja Flipping');
+            });
+        </script>
+    </body>
+</html>
 
