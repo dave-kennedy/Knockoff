@@ -197,51 +197,7 @@ You can add the same validator to multiple properties by passing an array of pro
 
 ### Getters and setters
 
-Knockoff relies on ECMAScript 5's Object.defineProperty to define getters and setters on the properties of your view model. If you also use Object.defineProperty to define getters and setters on properties, make sure you call `KO.bind` _last_ (after defining your own getters and setters). This is because the getters and setters defined by Knockoff will call any existing getters and setters instead of overwriting them. For example, this works:
-
-```JavaScript
-var model = {
-    name: 'Dave'
-};
-
-var name = model.name;
-
-Object.defineProperty(model, 'name', {
-    get: function () {
-        return name;
-    },
-    set: function (val) {
-        console.log('model.name setter called');
-        name = val;
-    }
-});
-
-KO.bind(model);
-```
-
-But this will totally break the model binding:
-
-```JavaScript
-var model = {
-    name: 'Dave'
-};
-
-var name = model.name;
-
-KO.bind(model);
-
-Object.defineProperty(model, 'name', {
-    get: function () {
-        return name;
-    },
-    set: function (val) {
-        console.log('model.name setter called');
-        name = val;
-    }
-});
-```
-
-So don't do it.
+Knockoff relies on ECMAScript 5's `Object.defineProperty` to define getters and setters on the properties of your view model, so you should not override them. If you need a hook into a property's setter, consider using `KO.listen` or `KO.validate` instead.
 
 ### Too much recursion
 
@@ -256,3 +212,4 @@ KO.listen('name', function (event) {
 ### Demo
 
 Right [here](http://dave-kennedy.github.io/Knockoff).
+

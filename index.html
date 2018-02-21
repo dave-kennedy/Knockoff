@@ -18,7 +18,7 @@
         Level: <input data-mapping="level" id="levelInput" type="text">
     </p>
     <p>
-       <input data-mapping="undead" id="undeadInput" type="checkbox" value="true"> Undead
+       <input data-mapping="undead" id="undeadInput" type="checkbox"> Undead
     </p>
     <p>
         Race:
@@ -82,7 +82,7 @@
     </p>
 </body>
 
-<script src="js/KO-1.0.28.js"></script>
+<script src="js/KO-1.0.29.js"></script>
 <script>
     // ECMAScript 5 strict mode
     'use strict';
@@ -111,6 +111,8 @@
         charisma: 20
     };
 
+    model.totalAttributes = 30;
+
     document.getElementById('attributesTable').insertRow().innerHTML = '<tr><td>Strength</td><td><input data-mapping="attributes.strength" id="attributesStrengthInput"></td></tr>';
     document.getElementById('attributesTable').insertRow().innerHTML = '<tr><td>Wisdom</td><td><input data-mapping="attributes.wisdom" id="attributesWisdomInput"></td></tr>';
     document.getElementById('attributesTable').insertRow().innerHTML = '<tr><td>Charisma</td><td><input data-mapping="attributes.charisma" id="attributesCharismaInput"></td></tr>';
@@ -136,24 +138,20 @@
     });
 
     KO.validate(['attributes.strength', 'attributes.wisdom', 'attributes.charisma'], function (event) {
-        return model.totalAttributes < 100;
+        return model.totalAttributes + event.detail.newValue < 100;
     });
 
     KO.validate(/powers\.(\d+)\.name/, function (event, match) {
         var power = parseInt(match[1]);
 
-        if (power === 0 && event.detail.newValue === 'Ninja Flipping') {
-            return false;
-        }
-
-        return true;
+        return !(power === 0 && event.detail.newValue === 'Ninja Flipping');
     });
 
     // Tests
 
     function assertEqual(val1, val2) {
         if (val1 !== val2) {
-            throw 'Expected ' + val1 + ' but was ' + val2;
+            throw 'Expected ' + val2 + ' but was ' + val1;
         }
     }
 
@@ -261,17 +259,17 @@
     }
 
     function testListen() {
-        model.attributes.strength = 4;
+        model.attributes.strength = 0;
         model.level = 12;
         assertEqual(model.attributes.strength, 6);
 
         model.totalAttributes = 0;
-        model.attributes.strength = 4;
-        model.attributes.wisdom = 6;
-        model.attributes.charisma = 20;
-        assertEqual(model.totalAttributes, 30);
+        model.attributes.strength = 6;
+        model.attributes.wisdom = 8;
+        model.attributes.charisma = 10;
+        assertEqual(model.totalAttributes, 24);
 
-        model.skills.programming.night = 20;
+        model.skills.programming.night = 0;
         model.skills.programming.day = 12;
         assertEqual(model.skills.programming.night, 24);
     }
@@ -303,8 +301,9 @@
         testArray();
         testListen();
         testValidate();
-        console.log('All tests passed!');
+        alert('All tests passed!');
     }
 
     document.getElementById('test-button').addEventListener('click', testAll);
 </script>
+
