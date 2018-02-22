@@ -3,7 +3,7 @@ var KO = (function () {
     'use strict';
 
     var eventListenersAdded = false,
-        module = {};
+        model;
 
     function getProperty(obj, props) {
         if (props.length > 1) {
@@ -31,9 +31,7 @@ var KO = (function () {
         }
 
         if (/^\+?\-?\d+$/.test(newValue)) {
-            obj[props[0]] = parseInt(newValue);
-
-            return;
+            newValue = parseInt(newValue);
         }
 
         obj[props[0]] = newValue;
@@ -69,7 +67,7 @@ var KO = (function () {
 
     function addGettersSetters(obj, prefix) {
         if (obj === undefined) {
-            obj = module.model;
+            obj = model;
         }
 
         if (prefix === undefined) {
@@ -87,7 +85,7 @@ var KO = (function () {
                 },
                 set(newValue) {
                     var oldValue = currentValue,
-                        cancelled = !window.dispatchEvent(new CustomEvent('beforeModelPropertySet', {
+                        cancelled = !document.dispatchEvent(new CustomEvent('beforeModelPropertySet', {
                             cancelable: true,
                             detail: {
                                 mapping: prefix + key,
@@ -102,7 +100,7 @@ var KO = (function () {
 
                     currentValue = newValue;
 
-                    window.dispatchEvent(new CustomEvent('modelPropertySet', {
+                    document.dispatchEvent(new CustomEvent('modelPropertySet', {
                         detail: {
                             mapping: prefix + key,
                             newValue: newValue,
@@ -135,8 +133,7 @@ var KO = (function () {
 
         for (i = 0; i < elements.length; i++) {
             props = elements[i].dataset.mapping.split('.');
-
-            setElementValue(elements[i], getProperty(module.model, props));
+            setElementValue(elements[i], getProperty(model, props));
         }
     }
 
@@ -145,7 +142,7 @@ var KO = (function () {
             return;
         }
 
-        window.addEventListener('change', function (event) {
+        document.addEventListener('change', function (event) {
             var mapping = event.target.dataset.mapping,
                 props;
 
@@ -154,30 +151,26 @@ var KO = (function () {
             }
 
             props = mapping.split('.');
-
-            setProperty(module.model, props, getElementValue(event.target));
+            setProperty(model, props, getElementValue(event.target));
         });
 
-        window.addEventListener('modelPropertySet', function (event) {
+        document.addEventListener('modelPropertySet', function (event) {
             updateView(event.detail.mapping);
         });
 
         eventListenersAdded = true;
     }
 
-    module.bind = function (model) {
-        module.model = model;
-
+    function bind(obj) {
+        model = obj;
         addGettersSetters();
-
         updateView();
-
         addEventListeners();
-    };
+    }
 
-    module.listen = function (mappings, callback) {
+    function listen(mappings, callback) {
         if (mappings instanceof RegExp) {
-            window.addEventListener('modelPropertySet', function (event) {
+            document.addEventListener('modelPropertySet', function (event) {
                 var match = event.detail.mapping.match(mappings);
 
                 if (match !== null) {
@@ -188,36 +181,42 @@ var KO = (function () {
             return;
         }
 
-        window.addEventListener('modelPropertySet', function (event) {
+        document.addEventListener('modelPropertySet', function (event) {
             if (mappings.indexOf(event.detail.mapping) !== -1) {
                 callback(event);
             }
         });
-    };
+    }
 
-    module.validate = function (mappings, callback) {
+    function validate(mappings, callback) {
         if (mappings instanceof RegExp) {
-            window.addEventListener('beforeModelPropertySet', function (event) {
+            document.addEventListener('beforeModelPropertySet', function (event) {
                 var match = event.detail.mapping.match(mappings),
                     props;
 
                 if (match !== null && !callback(event, match)) {
                     event.preventDefault();
+                    updateView(event.detail.mapping);
                 }
             });
 
             return;
         }
 
-        window.addEventListener('beforeModelPropertySet', function (event) {
+        document.addEventListener('beforeModelPropertySet', function (event) {
             var props;
 
             if (mappings.indexOf(event.detail.mapping) !== -1 && !callback(event)) {
                 event.preventDefault();
+                updateView(event.detail.mapping);
             }
         });
-    };
+    }
 
-    return module;
+    return {
+        bind: bind,
+        listen: listen,
+        validate: validate
+    };
 }());
 
