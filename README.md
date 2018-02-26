@@ -151,6 +151,8 @@ document.getElementById('attributes').insertRow().innerHTML = '<tr><td>Charisma<
 KO.bind(model);
 ```
 
+To completely remove the model binding, just use `KO.unbind`.
+
 ### Computed properties
 
 If you want a property that is computed from another property, use the `KO.listen` function. The first argument is the name of a property to listen for changes on and the second argument is a callback function:
