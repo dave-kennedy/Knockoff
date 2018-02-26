@@ -76,7 +76,7 @@
             </tr>
         </table>
 
-        <script src="js/KO-1.0.31.js"></script>
+        <script src="js/KO-1.0.32.js"></script>
         <script>
             'use strict';
 
@@ -131,7 +131,7 @@
             });
 
             KO.validate(['attributes.strength', 'attributes.wisdom', 'attributes.charisma'], function (event) {
-                return model.totalAttributes + event.detail.newValue < 100;
+                return model.totalAttributes - event.detail.oldValue + event.detail.newValue < 100;
             });
 
             KO.validate(/powers\.(\d+)\.name/, function (event, match) {

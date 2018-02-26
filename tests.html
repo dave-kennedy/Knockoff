@@ -5,7 +5,7 @@
         <title>Knockoff Tests</title>
     </head>
     <body>
-        <script src="js/KO-1.0.31.js"></script>
+        <script src="js/KO-1.0.32.js"></script>
         <script>
             'use strict';
 
@@ -141,6 +141,7 @@
                 assertEqual(powers1DescriptionInput.value, model.powers[1].description);
 
                 testContainer.remove();
+                KO.unbind(model);
             }
 
             function testHtml() {
@@ -165,6 +166,7 @@
                 assertEqual(nameSpan.innerHTML, 'Sarah');
 
                 testContainer.remove();
+                KO.unbind(model);
             }
 
             function testTextInput() {
@@ -190,6 +192,7 @@
                 assertEqual(nameInput.value, 'Bob');
 
                 testContainer.remove();
+                KO.unbind(model);
             }
 
             function testNumericInput() {
@@ -215,6 +218,7 @@
                 assertEqual(levelInput.value, '14');
 
                 testContainer.remove();
+                KO.unbind(model);
             }
 
             function testCheckbox() {
@@ -240,6 +244,7 @@
                 assertEqual(undeadInput.checked, true);
 
                 testContainer.remove();
+                KO.unbind(model);
             }
 
             function testSelect() {
@@ -265,6 +270,7 @@
                 assertEqual(raceSelect.value, 'Vulcan');
 
                 testContainer.remove();
+                KO.unbind(model);
             }
 
             function testTextarea() {
@@ -289,6 +295,7 @@
                 assertEqual(descriptionTextarea.value, 'Blah blah blah...');
 
                 testContainer.remove();
+                KO.unbind(model);
             }
 
             function testNested() {
@@ -317,6 +324,7 @@
                 assertEqual(skillsProgrammingDayInput.value, '14');
 
                 testContainer.remove();
+                KO.unbind(model);
             }
 
             function testArray() {
@@ -345,6 +353,7 @@
                 assertEqual(powers0NameInput.value, 'Ninja Flipping');
 
                 testContainer.remove();
+                KO.unbind(model);
             }
 
             function testListen() {
@@ -370,6 +379,8 @@
                 setTimeout(function () {
                     assertEqual(callback, true);
                 }, 1000);
+
+                KO.unbind(model);
             }
 
             function testListenArray() {
@@ -407,6 +418,8 @@
                     assertEqual(firstCallback, true);
                     assertEqual(secondCallback, true);
                 }, 1000);
+
+                KO.unbind(model);
             }
 
             function testListenRegExp() {
@@ -448,6 +461,8 @@
                     assertEqual(firstCallback, true);
                     assertEqual(secondCallback, true);
                 }, 1000);
+
+                KO.unbind(model);
             }
 
             function testValidate() {
@@ -477,6 +492,8 @@
                 setTimeout(function () {
                     assertEqual(callback, true);
                 }, 1000);
+
+                KO.unbind(model);
             }
 
             function testValidateArray() {
@@ -511,8 +528,6 @@
                 model.name = 'Bob';
                 model.level = 12;
 
-                // BUG: change callback above to return true and this should fail but it doesn't,
-                // probably tests are stepping on each other
                 assertEqual(model.name, 'Dave');
                 assertEqual(model.level, 10);
 
@@ -521,6 +536,8 @@
                     assertEqual(firstCallback, true);
                     assertEqual(secondCallback, true);
                 }, 1000);
+
+                KO.unbind(model);
             }
 
             function testValidateRegExp() {
@@ -567,6 +584,8 @@
                     assertEqual(firstCallback, true);
                     assertEqual(secondCallback, true);
                 }, 1000);
+
+                KO.unbind(model);
             }
 
             function testAll() {

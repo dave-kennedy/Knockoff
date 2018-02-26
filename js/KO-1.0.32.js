@@ -1,8 +1,10 @@
 var KO = (function () {
     'use strict';
 
-    var eventListenersAdded = false,
-        model;
+    var model,
+        eventListenersAdded = false,
+        listeners = [],
+        validators = [];
 
     function getProperty(obj, mappingParts) {
         if (mappingParts.length > 1) {
@@ -134,23 +136,41 @@ var KO = (function () {
             return;
         }
 
-        document.addEventListener('change', ev => {
-            var mapping = ev.target.dataset.mapping,
-                mappingParts;
-
-            if (mapping === undefined) {
-                return;
-            }
-
-            mappingParts = mapping.split('.');
-            setProperty(model, mappingParts, getElementValue(ev.target));
-        });
-
-        document.addEventListener('modelPropertySet', ev => {
-            updateView(ev.detail.mapping);
-        });
+        document.addEventListener('change', changeHandler);
+        document.addEventListener('modelPropertySet', modelPropertySetHandler);
 
         eventListenersAdded = true;
+    }
+
+    function removeEventListeners() {
+        document.removeEventListener('change', changeHandler);
+        document.removeEventListener('modelPropertySet', modelPropertySetHandler);
+
+        listeners.forEach(listener => {
+            document.removeEventListener('modelPropertySet', listener);
+        });
+
+        validators.forEach(validator => {
+            document.removeEventListener('beforeModelPropertySet', validator);
+        });
+
+        eventListenersAdded = false;
+    }
+
+    function changeHandler(ev) {
+        var mapping = ev.target.dataset.mapping,
+            mappingParts;
+
+        if (mapping === undefined) {
+            return;
+        }
+
+        mappingParts = mapping.split('.');
+        setProperty(model, mappingParts, getElementValue(ev.target));
+    }
+
+    function modelPropertySetHandler(ev) {
+        updateView(ev.detail.mapping);
     }
 
     function bind(obj) {
@@ -160,50 +180,62 @@ var KO = (function () {
         addEventListeners();
     }
 
+    function unbind() {
+        model = undefined;
+        removeEventListeners();
+    }
+
     function listen(mappings, callback) {
+        var listener;
+
         if (mappings instanceof RegExp) {
-            document.addEventListener('modelPropertySet', ev => {
+            listener = function (ev) {
                 var match = ev.detail.mapping.match(mappings);
 
                 if (match !== null) {
                     callback(ev, match);
                 }
-            });
-
-            return;
+            };
+        } else {
+            listener = function (ev) {
+                if (mappings.indexOf(ev.detail.mapping) !== -1) {
+                    callback(ev);
+                }
+            };
         }
 
-        document.addEventListener('modelPropertySet', ev => {
-            if (mappings.indexOf(ev.detail.mapping) !== -1) {
-                callback(ev);
-            }
-        });
+        listeners.push(listener);
+        document.addEventListener('modelPropertySet', listener);
     }
 
     function validate(mappings, callback) {
+        var validator;
+
         if (mappings instanceof RegExp) {
-            document.addEventListener('beforeModelPropertySet', ev => {
+            validator = function (ev) {
                 var match = ev.detail.mapping.match(mappings);
 
                 if (match !== null && callback(ev, match) === false) {
                     ev.preventDefault();
                     updateView(ev.detail.mapping);
                 }
-            });
-
-            return;
+            };
+        } else {
+            validator = function (ev) {
+                if (mappings.indexOf(ev.detail.mapping) !== -1 && callback(ev) === false) {
+                    ev.preventDefault();
+                    updateView(ev.detail.mapping);
+                }
+            };
         }
 
-        document.addEventListener('beforeModelPropertySet', ev => {
-            if (mappings.indexOf(ev.detail.mapping) !== -1 && callback(ev) === false) {
-                ev.preventDefault();
-                updateView(ev.detail.mapping);
-            }
-        });
+        validators.push(validator);
+        document.addEventListener('beforeModelPropertySet', validator);
     }
 
     return {
         bind: bind,
+        unbind: unbind,
         listen: listen,
         validate: validate
     };
