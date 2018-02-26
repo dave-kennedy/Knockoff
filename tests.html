@@ -375,10 +375,7 @@
 
                 model.name = 'Bob';
 
-                // wait a sec to make sure callback was fired
-                setTimeout(function () {
-                    assertEqual(callback, true);
-                }, 1000);
+                assertEqual(callback, true);
 
                 KO.unbind(model);
             }
@@ -413,11 +410,8 @@
                 model.name = 'Bob';
                 model.level = 12;
 
-                // wait a sec to make sure callback was fired
-                setTimeout(function () {
-                    assertEqual(firstCallback, true);
-                    assertEqual(secondCallback, true);
-                }, 1000);
+                assertEqual(firstCallback, true);
+                assertEqual(secondCallback, true);
 
                 KO.unbind(model);
             }
@@ -456,11 +450,8 @@
                 model.skills.programming.day = 12;
                 model.skills.underwaterBasketWeaving.day = 2;
 
-                // wait a sec to make sure callback was fired
-                setTimeout(function () {
-                    assertEqual(firstCallback, true);
-                    assertEqual(secondCallback, true);
-                }, 1000);
+                assertEqual(firstCallback, true);
+                assertEqual(secondCallback, true);
 
                 KO.unbind(model);
             }
@@ -488,10 +479,7 @@
 
                 assertEqual(model.name, 'Dave');
 
-                // wait a sec to make sure callback was fired
-                setTimeout(function () {
-                    assertEqual(callback, true);
-                }, 1000);
+                assertEqual(callback, true);
 
                 KO.unbind(model);
             }
@@ -531,11 +519,8 @@
                 assertEqual(model.name, 'Dave');
                 assertEqual(model.level, 10);
 
-                // wait a sec to make sure callback was fired
-                setTimeout(function () {
-                    assertEqual(firstCallback, true);
-                    assertEqual(secondCallback, true);
-                }, 1000);
+                assertEqual(firstCallback, true);
+                assertEqual(secondCallback, true);
 
                 KO.unbind(model);
             }
@@ -579,11 +564,8 @@
                 assertEqual(model.skills.programming.day, 10);
                 assertEqual(model.skills.underwaterBasketWeaving.day, 1);
 
-                // wait a sec to make sure callback was fired
-                setTimeout(function () {
-                    assertEqual(firstCallback, true);
-                    assertEqual(secondCallback, true);
-                }, 1000);
+                assertEqual(firstCallback, true);
+                assertEqual(secondCallback, true);
 
                 KO.unbind(model);
             }
@@ -605,7 +587,6 @@
                 testValidateArray();
                 testValidateRegExp();
 
-                // BUG: doesn't work for async tests (listen, validate)
                 alert('All tests passed!');
             }
 
