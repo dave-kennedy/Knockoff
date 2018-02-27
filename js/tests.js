@@ -56,7 +56,7 @@ Test.prototype.assertEqual = function (val1, val2) {
 Test.prototype.renderPass = function () {
     var el = document.createElement('div');
     el.className = 'success m-1 p-1 round';
-    el.innerHTML = `✓ ${this.name} passed`;
+    el.innerHTML = `&#x2713; ${this.name} passed`;
     document.body.appendChild(el);
     return el;
 };
@@ -64,7 +64,7 @@ Test.prototype.renderPass = function () {
 Test.prototype.renderFail = function (err) {
     var el = document.createElement('div');
     el.className = 'error m-1 p-1 round';
-    el.innerHTML = `🗴 ${this.name} failed - ${err.name}: ${err.message} (see console for stack trace)`;
+    el.innerHTML = `&#x2717; ${this.name} failed - ${err.name}: ${err.message} (see console for stack trace)`;
     document.body.appendChild(el);
     return el;
 };
@@ -203,7 +203,7 @@ allTests.addTest(new Test('testTextInput', function () {
     model.name = 'Bob';
     this.assertEqual(nameInput.value, 'Bob');
 
-    KO.unbind(model);
+    KO.unbind();
 }));
 
 allTests.addTest(new Test('testNumericInput', function () {
@@ -221,7 +221,7 @@ allTests.addTest(new Test('testNumericInput', function () {
     model.level = 14;
     this.assertEqual(levelInput.value, '14');
 
-    KO.unbind(model);
+    KO.unbind();
 }));
 
 allTests.addTest(new Test('testCheckboxInput', function () {
@@ -239,7 +239,7 @@ allTests.addTest(new Test('testCheckboxInput', function () {
     model.undead = true;
     this.assertEqual(undeadInput.checked, true);
 
-    KO.unbind(model);
+    KO.unbind();
 }));
 
 allTests.addTest(new Test('testSelect', function () {
@@ -257,7 +257,7 @@ allTests.addTest(new Test('testSelect', function () {
     model.race = 'Vulcan';
     this.assertEqual(raceSelect.value, 'Vulcan');
 
-    KO.unbind(model);
+    KO.unbind();
 }));
 
 allTests.addTest(new Test('testTextarea', function () {
@@ -275,7 +275,7 @@ allTests.addTest(new Test('testTextarea', function () {
     model.description = 'Blah blah blah...';
     this.assertEqual(descriptionTextarea.value, 'Blah blah blah...');
 
-    KO.unbind(model);
+    KO.unbind();
 }));
 
 allTests.addTest(new Test('testNested', function () {
@@ -296,7 +296,7 @@ allTests.addTest(new Test('testNested', function () {
     model.skills.programming.day = 14;
     this.assertEqual(skillsProgrammingDayInput.value, '14');
 
-    KO.unbind(model);
+    KO.unbind();
 }));
 
 allTests.addTest(new Test('testArray', function () {
@@ -317,7 +317,38 @@ allTests.addTest(new Test('testArray', function () {
     model.powers[0].name = 'Ninja Flipping';
     this.assertEqual(powers0NameInput.value, 'Ninja Flipping');
 
-    KO.unbind(model);
+    KO.unbind();
+}));
+
+allTests.addTest(new Test('testUnbind', function () {
+    var nameInput = this.addTextInput('name');
+
+    var model = {
+        name: 'Dave'
+    };
+
+    KO.bind(model);
+
+    var listenerCalled = false;
+    KO.listen('name', function (event) {
+        listenerCalled = true;
+    });
+
+    var validatorCalled = false;
+    KO.validate('name', function (event) {
+        validatorCalled = true;
+    });
+
+    KO.unbind();
+
+    this.setElementValue(nameInput, 'Steve');
+    this.assertEqual(model.name, 'Dave');
+
+    model.name = 'Bob';
+    this.assertEqual(nameInput.value, 'Steve');
+
+    this.assertEqual(listenerCalled, false);
+    this.assertEqual(validatorCalled, false);
 }));
 
 allTests.addTest(new Test('testListen', function () {
@@ -344,7 +375,7 @@ allTests.addTest(new Test('testListen', function () {
     this.assertEqual(eventDetail.newValue, 'Steve');
     this.assertEqual(eventDetail.oldValue, 'Bob');
 
-    KO.unbind(model);
+    KO.unbind();
 }));
 
 allTests.addTest(new Test('testListenArray', function () {
@@ -383,7 +414,7 @@ allTests.addTest(new Test('testListenArray', function () {
     this.assertEqual(eventDetail.newValue, 14);
     this.assertEqual(eventDetail.oldValue, 12);
 
-    KO.unbind(model);
+    KO.unbind();
 }));
 
 allTests.addTest(new Test('testListenRegExp', function () {
@@ -424,7 +455,7 @@ allTests.addTest(new Test('testListenRegExp', function () {
     this.assertEqual(eventDetail.newValue, 4);
     this.assertEqual(eventDetail.oldValue, 2);
 
-    KO.unbind(model);
+    KO.unbind();
 }));
 
 allTests.addTest(new Test('testValidate', function () {
@@ -456,7 +487,7 @@ allTests.addTest(new Test('testValidate', function () {
     this.assertEqual(model.name, 'Dave');
     this.assertEqual(nameInput.value, 'Dave');
 
-    KO.unbind(model);
+    KO.unbind();
 }));
 
 allTests.addTest(new Test('testValidateArray', function () {
@@ -504,7 +535,7 @@ allTests.addTest(new Test('testValidateArray', function () {
     this.assertEqual(model.level, 10);
     this.assertEqual(levelInput.value, '10');
 
-    KO.unbind(model);
+    KO.unbind();
 }));
 
 allTests.addTest(new Test('testValidateRegExp', function () {
@@ -554,8 +585,7 @@ allTests.addTest(new Test('testValidateRegExp', function () {
     this.assertEqual(model.skills.underwaterBasketWeaving.day, 1);
     this.assertEqual(skillsUnderwaterBasketWeavingDayInput.value, '1');
 
-    KO.unbind(model);
+    KO.unbind();
 }));
 
 allTests.run();
-
