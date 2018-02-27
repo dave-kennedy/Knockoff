@@ -3,19 +3,120 @@
     <head>
         <meta charset="utf-8">
         <title>Knockoff Tests</title>
+        <style>
+            body {
+                font-family: sans-serif;
+            }
+            .success {
+                background-color: #efe;
+                color: darkgreen;
+            }
+            .error {
+                background-color: #fee;
+                color: darkred;
+            }
+            .m-1 {
+                margin: 0.5rem;
+            }
+            .p-1 {
+                padding: 0.5rem;
+            }
+            .round {
+                border-radius: 0.5rem;
+            }
+        </style>
     </head>
     <body>
         <script src="js/KO-1.0.32.js"></script>
         <script>
             'use strict';
 
-            function assertEqual(val1, val2) {
-                if (val1 !== val2) {
-                    throw 'Expected ' + val2 + ' but was ' + val1;
-                }
+            function Test(name, func) {
+                this.name = name;
+                this.func = func;
+                this.testContainer = undefined;
             }
 
-            function setElementValue(el, newValue) {
+            Test.prototype.addCheckboxInput = function (mapping) {
+                var el = document.createElement('input');
+                el.dataset.mapping = mapping;
+                el.type = 'checkbox';
+                this.testContainer.appendChild(el);
+                return el;
+            };
+
+            Test.prototype.addSelect = function (mapping, options) {
+                var el = document.createElement('select');
+                el.dataset.mapping = mapping;
+                el.innerHTML = '<option value="">Select one...</option>';
+                options.forEach(option => {
+                    el.innerHTML += '<option value="' + option + '">' + option + '</option>';
+                });
+                this.testContainer.appendChild(el);
+                return el;
+            };
+
+            Test.prototype.addSpan = function (mapping) {
+                var el = document.createElement('span');
+                el.dataset.mapping = mapping;
+                this.testContainer.appendChild(el);
+                return el;
+            };
+
+            Test.prototype.addTextarea = function (mapping) {
+                var el = document.createElement('textarea');
+                el.dataset.mapping = mapping;
+                this.testContainer.appendChild(el);
+                return el;
+            };
+
+            Test.prototype.addTextInput = function (mapping) {
+                var el = document.createElement('input');
+                el.dataset.mapping = mapping;
+                el.type = 'text';
+                this.testContainer.appendChild(el);
+                return el;
+            };
+
+            Test.prototype.assertEqual = function (val1, val2) {
+                if (val1 !== val2) {
+                    throw new Error('Expected ' + val2 + ' but was ' + val1);
+                }
+            };
+
+            Test.prototype.renderPass = function () {
+                var el = document.createElement('div');
+                el.className = 'success m-1 p-1 round';
+                el.innerHTML = `✓ ${this.name} passed`;
+                document.body.appendChild(el);
+                return el;
+            };
+
+            Test.prototype.renderFail = function (err) {
+                var el = document.createElement('div');
+                el.className = 'error m-1 p-1 round';
+                el.innerHTML = `🗴 ${this.name} failed - ${err.name}: ${err.message} (see console for stack trace)`;
+                document.body.appendChild(el);
+                return el;
+            };
+
+            Test.prototype.run = function () {
+                this.testContainer = document.createElement('div');
+                this.testContainer.style.display = 'none';
+                document.body.appendChild(this.testContainer);
+
+                try {
+                    this.func.call(this);
+                    this.renderPass();
+                } catch (err) {
+                    console.error(err);
+                    this.renderFail(err);
+                }
+
+                this.testContainer.remove();
+            };
+
+            Test.prototype.setElementValue = function (el, newValue) {
                 switch (el.type) {
                     case 'text':
                     case 'textarea':
@@ -32,80 +133,37 @@
                 el.dispatchEvent(new Event('change', {
                     bubbles: true
                 }));
+            };
+
+            function TestSuite() {
+                this.tests = [];
             }
 
-            function testBind() {
-                var testContainer = document.createElement('div');
-                testContainer.style.display = 'none';
-                document.body.appendChild(testContainer);
+            TestSuite.prototype.addTest = function (test) {
+                this.tests.push(test);
+            };
 
-                var nameSpan = document.createElement('span');
-                nameSpan.dataset.mapping = 'name';
-                testContainer.appendChild(nameSpan);
+            TestSuite.prototype.run = function () {
+                this.tests.forEach(test => test.run());
+            };
 
-                var nameInput = document.createElement('input');
-                nameInput.dataset.mapping = 'name';
-                nameInput.type = 'text';
-                testContainer.appendChild(nameInput);
+            var allTests = new TestSuite();
 
-                var levelInput = document.createElement('input');
-                levelInput.dataset.mapping = 'level';
-                levelInput.type = 'text';
-                testContainer.appendChild(levelInput);
-
-                var undeadInput = document.createElement('input');
-                undeadInput.dataset.mapping = 'undead';
-                undeadInput.type = 'checkbox';
-                testContainer.appendChild(undeadInput);
-
-                var raceSelect = document.createElement('select');
-                raceSelect.dataset.mapping = 'race';
-                raceSelect.innerHTML = '<option value="">Select one...</option><option value="Human">Human</option><option value="Klingon">Klingon</option><option value="Vulcan">Vulcan</option>';
-                testContainer.appendChild(raceSelect);
-
-                var descriptionTextarea = document.createElement('textarea');
-                descriptionTextarea.dataset.mapping = 'description';
-                testContainer.appendChild(descriptionTextarea);
-
-                var skillsProgrammingDayInput = document.createElement('input');
-                skillsProgrammingDayInput.dataset.mapping = 'skills.programming.day';
-                skillsProgrammingDayInput.type = 'text';
-                testContainer.appendChild(skillsProgrammingDayInput);
-
-                var skillsProgrammingNightInput = document.createElement('input');
-                skillsProgrammingNightInput.dataset.mapping = 'skills.programming.night';
-                skillsProgrammingNightInput.type = 'text';
-                testContainer.appendChild(skillsProgrammingNightInput);
-
-                var skillsUnderwaterBasketWeavingDayInput = document.createElement('input');
-                skillsUnderwaterBasketWeavingDayInput.dataset.mapping = 'skills.underwaterBasketWeaving.day';
-                skillsUnderwaterBasketWeavingDayInput.type = 'text';
-                testContainer.appendChild(skillsUnderwaterBasketWeavingDayInput);
-
-                var skillsUnderwaterBasketWeavingNightInput = document.createElement('input');
-                skillsUnderwaterBasketWeavingNightInput.dataset.mapping = 'skills.underwaterBasketWeaving.night';
-                skillsUnderwaterBasketWeavingNightInput.type = 'text';
-                testContainer.appendChild(skillsUnderwaterBasketWeavingNightInput);
-
-                var powers0NameInput = document.createElement('input');
-                powers0NameInput.dataset.mapping = 'powers.0.name';
-                powers0NameInput.type = 'text';
-                testContainer.appendChild(powers0NameInput);
-
-                var powers0DescriptionInput = document.createElement('input');
-                powers0DescriptionInput.dataset.mapping = 'powers.0.description';
-                powers0DescriptionInput.type = 'text';
-                testContainer.appendChild(powers0DescriptionInput);
-
-                var powers1NameInput = document.createElement('input');
-                powers1NameInput.dataset.mapping = 'powers.1.name';
-                powers1NameInput.type = 'text';
-                testContainer.appendChild(powers1NameInput);
-
-                var powers1DescriptionInput = document.createElement('input');
-                powers1DescriptionInput.dataset.mapping = 'powers.1.description';
-                powers1DescriptionInput.type = 'text';
-                testContainer.appendChild(powers1DescriptionInput);
+            allTests.addTest(new Test('testBind', function () {
+                var nameSpan = this.addSpan('name');
+                var nameInput = this.addTextInput('name');
+                var levelInput = this.addTextInput('level');
+                var undeadInput = this.addCheckboxInput('undead');
+                var raceSelect = this.addSelect('race', ['Human', 'Klingon', 'Vulcan']);
+                var descriptionTextarea = this.addTextarea('description');
+                var skillsProgrammingDayInput = this.addTextInput('skills.programming.day');
+                var skillsProgrammingNightInput = this.addTextInput('skills.programming.night');
+                var skillsUnderwaterBasketWeavingDayInput = this.addTextInput('skills.underwaterBasketWeaving.day');
+                var skillsUnderwaterBasketWeavingNightInput = this.addTextInput('skills.underwaterBasketWeaving.night');
+                var powers0NameInput = this.addTextInput('powers.0.name');
+                var powers0DescriptionInput = this.addTextInput('powers.0.description');
+                var powers1NameInput = this.addTextInput('powers.1.name');
+                var powers1DescriptionInput = this.addTextInput('powers.1.description');
 
                 var model = {
                     name: 'Dave',
@@ -125,180 +183,135 @@
 
                 KO.bind(model);
 
-                assertEqual(nameSpan.innerHTML, model.name);
-                assertEqual(nameInput.value, model.name);
-                assertEqual(levelInput.value, model.level.toString());
-                assertEqual(undeadInput.checked, model.undead);
-                assertEqual(raceSelect.value, model.race);
-                assertEqual(descriptionTextarea.value, model.description);
-                assertEqual(skillsProgrammingDayInput.value, model.skills.programming.day.toString());
-                assertEqual(skillsProgrammingNightInput.value, model.skills.programming.night.toString());
-                assertEqual(skillsUnderwaterBasketWeavingDayInput.value, model.skills.underwaterBasketWeaving.day.toString());
-                assertEqual(skillsUnderwaterBasketWeavingNightInput.value, model.skills.underwaterBasketWeaving.night.toString());
-                assertEqual(powers0NameInput.value, model.powers[0].name);
-                assertEqual(powers0DescriptionInput.value, model.powers[0].description);
-                assertEqual(powers1NameInput.value, model.powers[1].name);
-                assertEqual(powers1DescriptionInput.value, model.powers[1].description);
+                this.assertEqual(nameSpan.innerHTML, 'Dave');
+                this.assertEqual(nameInput.value, 'Dave');
+                this.assertEqual(levelInput.value, '10');
+                this.assertEqual(undeadInput.checked, true);
+                this.assertEqual(raceSelect.value, 'Human');
+                this.assertEqual(descriptionTextarea.value, 'As a young boy, Dave created lego masterpieces and wrestled alligators. This is why he only has one arm...');
+                this.assertEqual(skillsProgrammingDayInput.value, '10');
+                this.assertEqual(skillsProgrammingNightInput.value, '20');
+                this.assertEqual(skillsUnderwaterBasketWeavingDayInput.value, '1');
+                this.assertEqual(skillsUnderwaterBasketWeavingNightInput.value, '2');
+                this.assertEqual(powers0NameInput.value, 'Flurry of Keystrokes');
+                this.assertEqual(powers0DescriptionInput.value, 'You can type up to 80 word per minute.');
+                this.assertEqual(powers1NameInput.value, 'Telekenesis');
+                this.assertEqual(powers1DescriptionInput.value, 'You can move a pebble-sized object with your brain once per day.');
 
-                testContainer.remove();
-                KO.unbind(model);
-            }
+                KO.unbind();
+            }));
 
-            function testHtml() {
+            allTests.addTest(new Test('testSpan', function () {
+                var nameSpan = this.addSpan('name');
+
                 var model = {
                     name: 'Dave'
                 };
 
                 KO.bind(model);
 
-                var testContainer = document.createElement('div');
-                testContainer.style.display = 'none';
-                document.body.appendChild(testContainer);
-
-                var nameSpan = document.createElement('span');
-                nameSpan.dataset.mapping = 'name';
-                testContainer.appendChild(nameSpan);
-
-                setElementValue(nameSpan, 'Ruth');
-                assertEqual(model.name, 'Ruth');
+                this.setElementValue(nameSpan, 'Ruth');
+                this.assertEqual(model.name, 'Ruth');
 
                 model.name = 'Sarah';
-                assertEqual(nameSpan.innerHTML, 'Sarah');
+                this.assertEqual(nameSpan.innerHTML, 'Sarah');
 
-                testContainer.remove();
-                KO.unbind(model);
-            }
+                KO.unbind();
+            }));
 
-            function testTextInput() {
+            allTests.addTest(new Test('testTextInput', function () {
+                var nameInput = this.addTextInput('name');
+
                 var model = {
                     name: 'Dave'
                 };
 
                 KO.bind(model);
 
-                var testContainer = document.createElement('div');
-                testContainer.style.display = 'none';
-                document.body.appendChild(testContainer);
-
-                var nameInput = document.createElement('input');
-                nameInput.dataset.mapping = 'name';
-                nameInput.type = 'text';
-                testContainer.appendChild(nameInput);
-
-                setElementValue(nameInput, 'Steve');
-                assertEqual(model.name, 'Steve');
+                this.setElementValue(nameInput, 'Steve');
+                this.assertEqual(model.name, 'Steve');
 
                 model.name = 'Bob';
-                assertEqual(nameInput.value, 'Bob');
+                this.assertEqual(nameInput.value, 'Bob');
 
-                testContainer.remove();
                 KO.unbind(model);
-            }
+            }));
 
-            function testNumericInput() {
+            allTests.addTest(new Test('testNumericInput', function () {
+                var levelInput = this.addTextInput('level');
+
                 var model = {
                     level: 10
                 };
 
                 KO.bind(model);
 
-                var testContainer = document.createElement('div');
-                testContainer.style.display = 'none';
-                document.body.appendChild(testContainer);
-
-                var levelInput = document.createElement('input');
-                levelInput.dataset.mapping = 'level';
-                levelInput.type = 'text';
-                testContainer.appendChild(levelInput);
-
-                setElementValue(levelInput, '12');
-                assertEqual(model.level, 12);
+                this.setElementValue(levelInput, '12');
+                this.assertEqual(model.level, 12);
 
                 model.level = 14;
-                assertEqual(levelInput.value, '14');
+                this.assertEqual(levelInput.value, '14');
 
-                testContainer.remove();
                 KO.unbind(model);
-            }
+            }));
 
-            function testCheckbox() {
+            allTests.addTest(new Test('testCheckboxInput', function () {
+                var undeadInput = this.addCheckboxInput('undead');
+
                 var model = {
                     undead: true
                 };
 
                 KO.bind(model);
 
-                var testContainer = document.createElement('div');
-                testContainer.style.display = 'none';
-                document.body.appendChild(testContainer);
-
-                var undeadInput = document.createElement('input');
-                undeadInput.dataset.mapping = 'undead';
-                undeadInput.type = 'checkbox';
-                testContainer.appendChild(undeadInput);
-
-                setElementValue(undeadInput, false);
-                assertEqual(model.undead, false);
+                this.setElementValue(undeadInput, false);
+                this.assertEqual(model.undead, false);
 
                 model.undead = true;
-                assertEqual(undeadInput.checked, true);
+                this.assertEqual(undeadInput.checked, true);
 
-                testContainer.remove();
                 KO.unbind(model);
-            }
+            }));
 
-            function testSelect() {
+            allTests.addTest(new Test('testSelect', function () {
+                var raceSelect = this.addSelect('race', ['Human', 'Klingon', 'Vulcan']);
+
                 var model = {
                     race: 'Human'
                 };
 
                 KO.bind(model);
 
-                var testContainer = document.createElement('div');
-                testContainer.style.display = 'none';
-                document.body.appendChild(testContainer);
-
-                var raceSelect = document.createElement('select');
-                raceSelect.dataset.mapping = 'race';
-                raceSelect.innerHTML = '<option value="">Select one...</option><option value="Human">Human</option><option value="Klingon">Klingon</option><option value="Vulcan">Vulcan</option>';
-                testContainer.appendChild(raceSelect);
-
-                setElementValue(raceSelect, 'Klingon');
-                assertEqual(model.race, 'Klingon');
+                this.setElementValue(raceSelect, 'Klingon');
+                this.assertEqual(model.race, 'Klingon');
 
                 model.race = 'Vulcan';
-                assertEqual(raceSelect.value, 'Vulcan');
+                this.assertEqual(raceSelect.value, 'Vulcan');
 
-                testContainer.remove();
                 KO.unbind(model);
-            }
+            }));
 
-            function testTextarea() {
+            allTests.addTest(new Test('testTextarea', function () {
+                var descriptionTextarea = this.addTextarea('description');
+
                 var model = {
                     description: 'As a young boy, Dave created lego masterpieces and wrestled alligators. This is why he only has one arm...'
                 };
 
                 KO.bind(model);
 
-                var testContainer = document.createElement('div');
-                testContainer.style.display = 'none';
-                document.body.appendChild(testContainer);
-
-                var descriptionTextarea = document.createElement('textarea');
-                descriptionTextarea.dataset.mapping = 'description';
-                testContainer.appendChild(descriptionTextarea);
-
-                setElementValue(descriptionTextarea, 'I am a banana!');
-                assertEqual(model.description, 'I am a banana!');
+                this.setElementValue(descriptionTextarea, 'I am a banana!');
+                this.assertEqual(model.description, 'I am a banana!');
 
                 model.description = 'Blah blah blah...';
-                assertEqual(descriptionTextarea.value, 'Blah blah blah...');
+                this.assertEqual(descriptionTextarea.value, 'Blah blah blah...');
 
-                testContainer.remove();
                 KO.unbind(model);
-            }
+            }));
 
-            function testNested() {
+            allTests.addTest(new Test('testNested', function () {
+                var skillsProgrammingDayInput = this.addTextInput('skills.programming.day');
+
                 var model = {
                     skills: {
                         programming: { day: 10, night: 20 },
@@ -308,26 +321,18 @@
 
                 KO.bind(model);
 
-                var testContainer = document.createElement('div');
-                testContainer.style.display = 'none';
-                document.body.appendChild(testContainer);
-
-                var skillsProgrammingDayInput = document.createElement('input');
-                skillsProgrammingDayInput.dataset.mapping = 'skills.programming.day';
-                skillsProgrammingDayInput.type = 'text';
-                testContainer.appendChild(skillsProgrammingDayInput);
-
-                setElementValue(skillsProgrammingDayInput, '12');
-                assertEqual(model.skills.programming.day, 12);
+                this.setElementValue(skillsProgrammingDayInput, 12);
+                this.assertEqual(model.skills.programming.day, 12);
 
                 model.skills.programming.day = 14;
-                assertEqual(skillsProgrammingDayInput.value, '14');
+                this.assertEqual(skillsProgrammingDayInput.value, '14');
 
-                testContainer.remove();
                 KO.unbind(model);
-            }
+            }));
 
-            function testArray() {
+            allTests.addTest(new Test('testArray', function () {
+                var powers0NameInput = this.addTextInput('powers.0.name');
+
                 var model = {
                     powers: [
                         { name: 'Flurry of Keystrokes', description: 'You can type up to 80 word per minute.' },
@@ -337,50 +342,46 @@
 
                 KO.bind(model);
 
-                var testContainer = document.createElement('div');
-                testContainer.style.display = 'none';
-                document.body.appendChild(testContainer);
-
-                var powers0NameInput = document.createElement('input');
-                powers0NameInput.dataset.mapping = 'powers.0.name';
-                powers0NameInput.type = 'text';
-                testContainer.appendChild(powers0NameInput);
-
-                setElementValue(powers0NameInput, 'Mental Domination');
-                assertEqual(model.powers[0].name, 'Mental Domination');
+                this.setElementValue(powers0NameInput, 'Mental Domination');
+                this.assertEqual(model.powers[0].name, 'Mental Domination');
 
                 model.powers[0].name = 'Ninja Flipping';
-                assertEqual(powers0NameInput.value, 'Ninja Flipping');
+                this.assertEqual(powers0NameInput.value, 'Ninja Flipping');
 
-                testContainer.remove();
                 KO.unbind(model);
-            }
+            }));
 
-            function testListen() {
+            allTests.addTest(new Test('testListen', function () {
+                var nameInput = this.addTextInput('name');
+
                 var model = {
                     name: 'Dave'
                 };
 
                 KO.bind(model);
 
-                var callback = false;
-
+                var eventDetail;
                 KO.listen('name', function (event) {
-                    assertEqual(event.detail.mapping, 'name');
-                    assertEqual(event.detail.newValue, 'Bob');
-                    assertEqual(event.detail.oldValue, 'Dave');
-
-                    callback = true;
+                    eventDetail = event.detail;
                 });
 
                 model.name = 'Bob';
+                this.assertEqual(eventDetail.mapping, 'name');
+                this.assertEqual(eventDetail.newValue, 'Bob');
+                this.assertEqual(eventDetail.oldValue, 'Dave');
 
-                assertEqual(callback, true);
+                this.setElementValue(nameInput, 'Steve');
+                this.assertEqual(eventDetail.mapping, 'name');
+                this.assertEqual(eventDetail.newValue, 'Steve');
+                this.assertEqual(eventDetail.oldValue, 'Bob');
 
                 KO.unbind(model);
-            }
+            }));
 
-            function testListenArray() {
+            allTests.addTest(new Test('testListenArray', function () {
+                var nameInput = this.addTextInput('name');
+                var levelInput = this.addTextInput('level');
+
                 var model = {
                     name: 'Dave',
                     level: 10
@@ -388,35 +389,38 @@
 
                 KO.bind(model);
 
-                var firstCallback = false,
-                    secondCallback = false;
-
+                var eventDetail;
                 KO.listen(['name', 'level'], function (event) {
-                    if (event.detail.mapping === 'name') {
-                        assertEqual(event.detail.newValue, 'Bob');
-                        assertEqual(event.detail.oldValue, 'Dave');
-
-                        firstCallback = true;
-                    } else if (event.detail.mapping === 'level') {
-                        assertEqual(event.detail.newValue, 12);
-                        assertEqual(event.detail.oldValue, 10);
-
-                        secondCallback = true;
-                    } else {
-                        throw 'Callback called with unexpected mapping ' + event.detail.mapping;
-                    }
+                    eventDetail = event.detail;
                 });
 
                 model.name = 'Bob';
-                model.level = 12;
+                this.assertEqual(eventDetail.mapping, 'name');
+                this.assertEqual(eventDetail.newValue, 'Bob');
+                this.assertEqual(eventDetail.oldValue, 'Dave');
 
-                assertEqual(firstCallback, true);
-                assertEqual(secondCallback, true);
+                model.level = 12;
+                this.assertEqual(eventDetail.mapping, 'level');
+                this.assertEqual(eventDetail.newValue, 12);
+                this.assertEqual(eventDetail.oldValue, 10);
+
+                this.setElementValue(nameInput, 'Steve');
+                this.assertEqual(eventDetail.mapping, 'name');
+                this.assertEqual(eventDetail.newValue, 'Steve');
+                this.assertEqual(eventDetail.oldValue, 'Bob');
+
+                this.setElementValue(levelInput, 14);
+                this.assertEqual(eventDetail.mapping, 'level');
+                this.assertEqual(eventDetail.newValue, 14);
+                this.assertEqual(eventDetail.oldValue, 12);
 
                 KO.unbind(model);
-            }
+            }));
 
-            function testListenRegExp() {
+            allTests.addTest(new Test('testListenRegExp', function () {
+                var skillsProgrammingDayInput = this.addTextInput('skills.programming.day');
+                var skillsUnderwaterBasketWeavingDayInput = this.addTextInput('skills.underwaterBasketWeaving.day');
+
                 var model = {
                     skills: {
                         programming: { day: 10, night: 20 },
@@ -426,65 +430,70 @@
 
                 KO.bind(model);
 
-                var firstCallback = false,
-                    secondCallback = false;
-
+                var eventDetail;
                 KO.listen(/skills\.(.*)\.day/, function (event, match) {
-                    var skill = match[1];
-
-                    if (skill === 'programming') {
-                        assertEqual(event.detail.newValue, 12);
-                        assertEqual(event.detail.oldValue, 10);
-
-                        firstCallback = true;
-                    } else if (skill === 'underwaterBasketWeaving') {
-                        assertEqual(event.detail.newValue, 2);
-                        assertEqual(event.detail.oldValue, 1);
-
-                        secondCallback = true;
-                    } else {
-                        throw 'Callback called with unexpected mapping ' + event.detail.mapping;
-                    }
+                    eventDetail = event.detail;
                 });
 
                 model.skills.programming.day = 12;
-                model.skills.underwaterBasketWeaving.day = 2;
+                this.assertEqual(eventDetail.mapping, 'skills.programming.day');
+                this.assertEqual(eventDetail.newValue, 12);
+                this.assertEqual(eventDetail.oldValue, 10);
 
-                assertEqual(firstCallback, true);
-                assertEqual(secondCallback, true);
+                model.skills.underwaterBasketWeaving.day = 2;
+                this.assertEqual(eventDetail.mapping, 'skills.underwaterBasketWeaving.day');
+                this.assertEqual(eventDetail.newValue, 2);
+                this.assertEqual(eventDetail.oldValue, 1);
+
+                this.setElementValue(skillsProgrammingDayInput, 14);
+                this.assertEqual(eventDetail.mapping, 'skills.programming.day');
+                this.assertEqual(eventDetail.newValue, 14);
+                this.assertEqual(eventDetail.oldValue, 12);
+
+                this.setElementValue(skillsUnderwaterBasketWeavingDayInput, 4);
+                this.assertEqual(eventDetail.mapping, 'skills.underwaterBasketWeaving.day');
+                this.assertEqual(eventDetail.newValue, 4);
+                this.assertEqual(eventDetail.oldValue, 2);
 
                 KO.unbind(model);
-            }
+            }));
 
-            function testValidate() {
+            allTests.addTest(new Test('testValidate', function () {
+                var nameInput = this.addTextInput('name');
+
                 var model = {
                     name: 'Dave'
                 };
 
                 KO.bind(model);
 
-                var callback = false;
-
+                var eventDetail;
                 KO.validate('name', function (event) {
-                    assertEqual(event.detail.mapping, 'name');
-                    assertEqual(event.detail.newValue, 'Bob');
-                    assertEqual(event.detail.oldValue, 'Dave');
-
-                    callback = true;
-
+                    eventDetail = event.detail;
                     return false;
                 });
 
                 model.name = 'Bob';
+                this.assertEqual(eventDetail.mapping, 'name');
+                this.assertEqual(eventDetail.newValue, 'Bob');
+                this.assertEqual(eventDetail.oldValue, 'Dave');
+                this.assertEqual(model.name, 'Dave');
+                this.assertEqual(nameInput.value, 'Dave');
 
-                assertEqual(model.name, 'Dave');
-
-                assertEqual(callback, true);
+                this.setElementValue(nameInput, 'Steve');
+                this.assertEqual(eventDetail.mapping, 'name');
+                this.assertEqual(eventDetail.newValue, 'Steve');
+                this.assertEqual(eventDetail.oldValue, 'Dave');
+                this.assertEqual(model.name, 'Dave');
+                this.assertEqual(nameInput.value, 'Dave');
 
                 KO.unbind(model);
-            }
+            }));
 
-            function testValidateArray() {
+            allTests.addTest(new Test('testValidateArray', function () {
+                var nameInput = this.addTextInput('name');
+                var levelInput = this.addTextInput('level');
+
                 var model = {
                     name: 'Dave',
                     level: 10
@@ -492,40 +501,47 @@
 
                 KO.bind(model);
 
-                var firstCallback = false,
-                    secondCallback = false;
-
+                var eventDetail;
                 KO.validate(['name', 'level'], function (event) {
-                    if (event.detail.mapping === 'name') {
-                        assertEqual(event.detail.newValue, 'Bob');
-                        assertEqual(event.detail.oldValue, 'Dave');
-
-                        firstCallback = true;
-                    } else if (event.detail.mapping === 'level') {
-                        assertEqual(event.detail.newValue, 12);
-                        assertEqual(event.detail.oldValue, 10);
-
-                        secondCallback = true;
-                    } else {
-                        throw 'Callback called with unexpected mapping ' + event.detail.mapping;
-                    }
-
+                    eventDetail = event.detail;
                     return false;
                 });
 
                 model.name = 'Bob';
+                this.assertEqual(eventDetail.mapping, 'name');
+                this.assertEqual(eventDetail.newValue, 'Bob');
+                this.assertEqual(eventDetail.oldValue, 'Dave');
+                this.assertEqual(model.name, 'Dave');
+                this.assertEqual(nameInput.value, 'Dave');
+
                 model.level = 12;
+                this.assertEqual(eventDetail.mapping, 'level');
+                this.assertEqual(eventDetail.newValue, 12);
+                this.assertEqual(eventDetail.oldValue, 10);
+                this.assertEqual(model.level, 10);
+                this.assertEqual(levelInput.value, '10');
 
-                assertEqual(model.name, 'Dave');
-                assertEqual(model.level, 10);
+                this.setElementValue(nameInput, 'Steve');
+                this.assertEqual(eventDetail.mapping, 'name');
+                this.assertEqual(eventDetail.newValue, 'Steve');
+                this.assertEqual(eventDetail.oldValue, 'Dave');
+                this.assertEqual(model.name, 'Dave');
+                this.assertEqual(nameInput.value, 'Dave');
 
-                assertEqual(firstCallback, true);
-                assertEqual(secondCallback, true);
+                this.setElementValue(levelInput, 14);
+                this.assertEqual(eventDetail.mapping, 'level');
+                this.assertEqual(eventDetail.newValue, 14);
+                this.assertEqual(eventDetail.oldValue, 10);
+                this.assertEqual(model.level, 10);
+                this.assertEqual(levelInput.value, '10');
 
                 KO.unbind(model);
-            }
+            }));
 
-            function testValidateRegExp() {
+            allTests.addTest(new Test('testValidateRegExp', function () {
+                var skillsProgrammingDayInput = this.addTextInput('skills.programming.day');
+                var skillsUnderwaterBasketWeavingDayInput = this.addTextInput('skills.underwaterBasketWeaving.day');
+
                 var model = {
                     skills: {
                         programming: { day: 10, night: 20 },
@@ -535,62 +551,44 @@
 
                 KO.bind(model);
 
-                var firstCallback = false,
-                    secondCallback = false;
-
+                var eventDetail;
                 KO.validate(/skills\.(.*)\.day/, function (event, match) {
-                    var skill = match[1];
-
-                    if (skill === 'programming') {
-                        assertEqual(event.detail.newValue, 12);
-                        assertEqual(event.detail.oldValue, 10);
-
-                        firstCallback = true;
-                    } else if (skill === 'underwaterBasketWeaving') {
-                        assertEqual(event.detail.newValue, 2);
-                        assertEqual(event.detail.oldValue, 1);
-
-                        secondCallback = true;
-                    } else {
-                        throw 'Callback called with unexpected mapping ' + event.detail.mapping;
-                    }
-
+                    eventDetail = event.detail;
                     return false;
                 });
 
                 model.skills.programming.day = 12;
+                this.assertEqual(eventDetail.mapping, 'skills.programming.day');
+                this.assertEqual(eventDetail.newValue, 12);
+                this.assertEqual(eventDetail.oldValue, 10);
+                this.assertEqual(model.skills.programming.day, 10);
+                this.assertEqual(skillsProgrammingDayInput.value, '10');
+
                 model.skills.underwaterBasketWeaving.day = 2;
+                this.assertEqual(eventDetail.mapping, 'skills.underwaterBasketWeaving.day');
+                this.assertEqual(eventDetail.newValue, 2);
+                this.assertEqual(eventDetail.oldValue, 1);
+                this.assertEqual(model.skills.underwaterBasketWeaving.day, 1);
+                this.assertEqual(skillsUnderwaterBasketWeavingDayInput.value, '1');
 
-                assertEqual(model.skills.programming.day, 10);
-                assertEqual(model.skills.underwaterBasketWeaving.day, 1);
+                this.setElementValue(skillsProgrammingDayInput, 14);
+                this.assertEqual(eventDetail.mapping, 'skills.programming.day');
+                this.assertEqual(eventDetail.newValue, 14);
+                this.assertEqual(eventDetail.oldValue, 10);
+                this.assertEqual(model.skills.programming.day, 10);
+                this.assertEqual(skillsProgrammingDayInput.value, '10');
 
-                assertEqual(firstCallback, true);
-                assertEqual(secondCallback, true);
+                this.setElementValue(skillsUnderwaterBasketWeavingDayInput, 4);
+                this.assertEqual(eventDetail.mapping, 'skills.underwaterBasketWeaving.day');
+                this.assertEqual(eventDetail.newValue, 4);
+                this.assertEqual(eventDetail.oldValue, 1);
+                this.assertEqual(model.skills.underwaterBasketWeaving.day, 1);
+                this.assertEqual(skillsUnderwaterBasketWeavingDayInput.value, '1');
 
                 KO.unbind(model);
-            }
+            }));
 
-            function testAll() {
-                testBind();
-                testHtml();
-                testTextInput();
-                testNumericInput();
-                testCheckbox();
-                testSelect();
-                testTextarea();
-                testNested();
-                testArray();
-                testListen();
-                testListenArray();
-                testListenRegExp();
-                testValidate();
-                testValidateArray();
-                testValidateRegExp();
-
-                alert('All tests passed!');
-            }
-
-            testAll();
+            allTests.run();
         </script>
     </body>
 </html>
