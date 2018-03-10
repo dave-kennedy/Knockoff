@@ -75,6 +75,11 @@ var KO = (function () {
             var currentValue = obj[key],
                 mapping = prefix + key;
 
+            // don't bind to document, window, dom elements, etc. - too much recursion
+            if (currentValue instanceof EventTarget) {
+                return;
+            }
+
             Object.defineProperty(obj, key, {
                 get() {
                     return currentValue;
